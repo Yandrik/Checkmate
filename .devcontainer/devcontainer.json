@@ -26,7 +26,7 @@
                 "charliermarsh.ruff"
             ],
             "settings": {
-                "python.defaultInterpreterPath": "/usr/local/bin/python",
+                "python.defaultInterpreterPath": "/workspaces/Checkmate/backend/.venv/bin/python",
                 "editor.indentSize": "tabSize",
                 "editor.tabSize": 2,
                 "files.eol": "\n",
@@ -50,7 +50,7 @@
                 "pylint.enabled": true,
                 "pylint.showNotification": "always",
                 "python.analysis.extraPaths": [
-                    "${workspaceFolder}/src"
+                    "${workspaceFolder}/backend"
                 ],
                 "python.analysis.autoImportCompletions": false,
                 "python.analysis.completeFunctionParens": true,
