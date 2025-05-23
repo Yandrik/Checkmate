@@ -7,6 +7,7 @@
     "containerEnv": {
         "TZ": "Europe/Berlin"
     },
+    "postCreateCommand": "cd backend; uv sync",
     "customizations": {
         "vscode": {
             "extensions": [
@@ -21,7 +22,8 @@
                 "oderwat.indent-rainbow",
                 "qwtel.sqlite-viewer",
                 "usernamehw.errorlens",
-                "ms-python.mypy-type-checker"
+                "ms-python.mypy-type-checker",
+                "charliermarsh.ruff"
             ],
             "settings": {
                 "python.defaultInterpreterPath": "/usr/local/bin/python",
@@ -33,7 +35,7 @@
                     "editor.formatOnSave": false
                 },
                 "pylint.lintOnChange": false,
-                "pylint.cwd": "${workspaceFolder}/src",
+                "pylint.cwd": "${workspaceFolder}/backend",
                 "pylint.severity": {
                     "convention": "Information",
                     "error": "Error",
@@ -62,7 +64,7 @@
                 "python.analysis.enablePytestSupport": true,
                 "python.analysis.importFormat": "absolute",
                 "mypy-type-checker.cwd": "${workspaceFolder}/backend",
-                "python.analysis.typeCheckingMode": "basic",
+                "python.analysis.typeCheckingMode": "basic"
             }
         }
     }
