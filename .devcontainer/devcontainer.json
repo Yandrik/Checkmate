@@ -1,0 +1,69 @@
+{
+    "name": "Python 3",
+    "build": {
+        "dockerfile": "Dockerfile",
+        "context": ".."
+    },
+    "containerEnv": {
+        "TZ": "Europe/Berlin"
+    },
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-python.python",
+                "ms-toolsai.jupyter",
+                "njpwerner.autodocstring",
+                "KevinRose.vsc-python-indent",
+                "donjayamanne.python-environment-manager",
+                "redhat.vscode-yaml",
+                "ms-python.debugpy",
+                "khaeransori.json2csv",
+                "oderwat.indent-rainbow",
+                "qwtel.sqlite-viewer",
+                "usernamehw.errorlens",
+                "ms-python.mypy-type-checker"
+            ],
+            "settings": {
+                "python.defaultInterpreterPath": "/usr/local/bin/python",
+                "editor.indentSize": "tabSize",
+                "editor.tabSize": 2,
+                "files.eol": "\n",
+                "editor.formatOnSave": true,
+                "[python]": {
+                    "editor.formatOnSave": false
+                },
+                "pylint.lintOnChange": false,
+                "pylint.cwd": "${workspaceFolder}/src",
+                "pylint.severity": {
+                    "convention": "Information",
+                    "error": "Error",
+                    "fatal": "Error",
+                    "refactor": "Hint",
+                    "warning": "Warning",
+                    "info": "Information"
+                },
+                "pylint.args": [
+                    "--rcfile=${workspaceFolder}/backend/.pylintrc"
+                ],
+                "pylint.enabled": true,
+                "pylint.showNotification": "always",
+                "python.analysis.extraPaths": [
+                    "${workspaceFolder}/src"
+                ],
+                "python.analysis.autoImportCompletions": false,
+                "python.analysis.completeFunctionParens": true,
+                "python.analysis.inlayHints.pytestParameters": true,
+                "python.analysis.inlayHints.functionReturnTypes": true,
+                "python.analysis.inlayHints.callArgumentNames": "partial",
+                "python.analysis.inlayHints.variableTypes": true,
+                "python.analysis.languageServerMode": "full",
+                "python.analysis.typeCheckingMod": "standard",
+                "python.analysis.diagnosticMode": "workspace",
+                "python.analysis.enablePytestSupport": true,
+                "python.analysis.importFormat": "absolute",
+                "mypy-type-checker.cwd": "${workspaceFolder}/backend",
+                "python.analysis.typeCheckingMode": "basic",
+            }
+        }
+    }
+}
