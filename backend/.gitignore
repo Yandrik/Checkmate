@@ -79,3 +79,6 @@ pyproject.toml.*.bak
 
 # Ignore local scripts
 ci.sh
+
+# PDF files
+*.pdf

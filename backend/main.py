@@ -30,13 +30,16 @@ app = Litestar(
     handle_get,
   ])
 
-# async def main() -> None:
-#   logger.info("Starting the Litestar app...")
-#   config = hypercorn.Config()
-#   config.worker_class = "trio"
-#   config.use_reloader = True
-#   await hypercorn.trio.serve(app, config)  # type: ignore[arg-type]
-#   logger.info("Hypercorn Serve completed, shutting down...")
+async def main() -> None:
+  logger.info("Starting the Litestar app...")
+  config = hypercorn.Config()
+  config.worker_class = "trio"
+  config.use_reloader = True
+  await hypercorn.trio.serve(app, config)  # type: ignore[arg-type]
+  logger.info("Hypercorn Serve completed, shutting down...")
 
-# if __name__ == "__main__":
-#   trio_asyncio.run(main)
+if __name__ == "__main__":
+  trio_asyncio.run(main)
+import ai_agent
+
+# ai_agent.main()
