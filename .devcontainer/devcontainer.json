@@ -8,6 +8,7 @@
         "TZ": "Europe/Berlin"
     },
     "postCreateCommand": "cd backend; uv sync",
+    "postAttachCommand": "cd backend; .venv/bin/python -m uvicorn main.py:app --reload",
     "customizations": {
         "vscode": {
             "extensions": [
@@ -26,7 +27,7 @@
                 "charliermarsh.ruff"
             ],
             "settings": {
-                "python.defaultInterpreterPath": "/workspaces/Checkmate/backend/.venv/bin/python",
+                "python.defaultInterpreterPath": "${workspaceFolder}/backend/.venv/bin/python",
                 "editor.indentSize": "tabSize",
                 "editor.tabSize": 2,
                 "files.eol": "\n",
