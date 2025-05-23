@@ -1,5 +1,5 @@
 [project]
-name = "server"
+name = "backend"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
@@ -8,16 +8,12 @@ dependencies = [
     "hypercorn>=0.17.3",
     "litellm>=1.67.4.post1",
     "litestar[standard]>=2.15.2",
-    "ollama>=0.4.8",
     "result>=0.17.0",
     "semantic-version>=2.10.0",
     "trio-asyncio>=0.15.0",
     "trio>=0.30.0",
+    "qwen-agent[code-interpreter,gui,mcp,rag]>=0.0.25",
 ]
-
-[dependency-groups]
-dev = ["mypy>=1.15.0", "pytest-trio>=0.8.0", "pytest>=8.3.5", "ruff>=0.11.6"]
-
 [tool.mypy]
 disallow_untyped_defs = true
 exclude = ["tests/"]
