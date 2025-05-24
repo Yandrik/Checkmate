@@ -10,6 +10,8 @@
   import { getFactCheckService } from "../proxyservice/factcheck";
   import { Err } from "neverthrow";
   import { scale } from "svelte/transition";
+  import CheckInformation from "./CheckInformation.svelte";
+  import { FactCheckResult } from "../api";
 
   // Prop to receive the tweet's root HTML element
   const { tweetElement } = $props<{ tweetElement: HTMLElement }>();
@@ -19,6 +21,8 @@
   let isLoading = $state(false);
   let error = $state<string | null>(null);
   let factState = $state(FactState.NONE);
+  let showInfo = $state(false);
+  let response = $state<FactCheckResult | null>(null);
 
   async function handleClick() {
     if (factState !== FactState.NONE) {
@@ -98,6 +102,7 @@
       return;
     } else {
       console.log("Fact check response:", res);
+      response = res.value;
       factState = fromVerdict(res.value.verdict);
       console.log(factState);
     }
@@ -108,6 +113,11 @@
 
   async function handleFactDisplayClick() {
     if (factState === FactState.NONE) handleClick();
+    else if (factState === FactState.LOADING) {
+      console.log("Fact check is still loading, please wait.");
+    } else {
+      showInfo = !showInfo; // Toggle the display of additional info
+    }
   }
 </script>
 
@@ -115,18 +125,29 @@
   onclick={handleClick}
   class="absolute top-2 right-[4.6rem] z-[9999] m-0 p-0 py-1 factcheckbutton flex flex-row items-center justify-center transition-[width]"
   style="width: {factState === FactState.NONE
-    ? '150px'
+    ? '110px'
     : '1.8rem'}; transition: width 0.3s ease; height: 1.8rem;"
 >
   {#if factState === FactState.NONE}
     <span out:scale={{ duration: 200, start: 0 }}>Fact Check</span>
   {/if}
-  <FactDisplay
-    onclick={handleFactDisplayClick}
-    state={factState}
-    classes="ztop h-5 w-5"
-  />
+  <div class="flex-col items-right justify-end">
+    <FactDisplay
+      onclick={handleFactDisplayClick}
+      state={factState}
+      classes="ztop h-5 w-5"
+    />
+  </div>
 </button>
+
+{#if showInfo && response !== null}
+  <CheckInformation
+    {response}
+    classes="absolute top-12 right-4"
+    state={factState}
+    zindex={10000000}
+  />
+{/if}
 
 <style lang="postcss">
   :root {
