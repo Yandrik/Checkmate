@@ -14,7 +14,7 @@ export default defineConfig({
   manifest: {
     name: "Name",
     description: "My extension description",
-    permissions: ["storage", "activeTab"],
+    permissions: ["storage", "activeTab", "contextMenus"],
     web_accessible_resources: [
       {
         resources: ["dashboard.html"],
