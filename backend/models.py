@@ -17,7 +17,7 @@ class AiSettings(BaseSettings):
   model_type: str
   model_config = SettingsConfigDict(env_prefix='AI_')
 
-class SearchRequest(BaseModel):
+class FactCheckDetailsRequest(BaseModel):
   title: str
   url: str
   content: str
@@ -40,8 +40,8 @@ class VideoMediaRequest:
 
 @dataclass
 class AllMediaRequest:
-  images: Optional[list[ImageMediaRequest]] = None #= Field(default_factory=list)
-  videos: Optional[list[VideoMediaRequest]] = None #= Field(default_factory=list)
+  images: Optional[list[ImageMediaRequest]] = None
+  videos: Optional[list[VideoMediaRequest]] = None
   hasMedia: bool = False
 
 @dataclass
@@ -54,7 +54,26 @@ class SocialMediaDetailsRequest:
   quoted: Optional['SocialMediaDetailsRequest'] = None # Recursive type
   platform: Optional[str] = None
 
+@dataclass
+class MediaDetailsRequest:
+    title: str
+    channel: str
+    channelUrl: str
+    videoId: str
+    url: str
+    transcription_close_to_timestamp: str
+    transcription_with_more_context: str
+@dataclass
+class MediaCommentDetailsRequest:
+  author: str
+  channelUrl: str
+  content: str
 
+# {
+#     "author": "@alsanchez5038",
+#     "channelUrl": "https://www.youtube.com/@alsanchez5038",
+#     "content": "Juhu! Danke dass es euch gibt!"
+# }
 class Verdict(Enum):
   VALID = "valid"
   INVALID = "invalid"
@@ -82,3 +101,4 @@ class FactCheckResult:
   verdict: Verdict  # valid | invalid | partially valid | unsure
   sources: list[FactCheckSource]  # List of sources with name and link
   factoids: Optional[list[Factoid]] = None  # Optional list of factoids with detailed information
+
