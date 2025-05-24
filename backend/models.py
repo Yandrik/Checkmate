@@ -51,7 +51,9 @@ class SocialMediaDetailsRequest:
   content: Optional[str] = None
   allMedia: Optional[AllMediaRequest] = None
   isAd: bool = False
-  quotedTweet: Optional['SocialMediaDetailsRequest'] = None  # Recursive type
+  quoted: Optional['SocialMediaDetailsRequest'] = None # Recursive type
+  platform: Optional[str] = None
+
 
 class Verdict(Enum):
   VALID = "valid"
