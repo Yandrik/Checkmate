@@ -1,11 +1,14 @@
 <script lang="ts">
   import Counter from "@/lib/components/Counter.svelte";
+  import { getBackendClient } from "@/lib/repo/backend";
   const dashboardUrl = browser.runtime.getURL("/dashboard.html");
   import { ProgressRing } from "@skeletonlabs/skeleton-svelte";
 
-  let isLoading = false;
-  let contentData: any = null;
-  let errorMessage = "";
+  let isLoading = $state(false);
+  let contentData: any = $state(null);
+  let errorMessage = $state("");
+
+  let apiResponse: any = $state(null);
 
   async function requestContent() {
     try {
@@ -60,6 +63,25 @@
       {:else}
         Get Page Content
       {/if}
+    </button>
+
+    <button
+      class="btn preset-filled-secondary-500 w-full"
+      onclick={async () => {
+        const backendClient = getBackendClient();
+        const res = await backendClient.factcheck(
+          "test",
+          "https://example.com",
+          "contenttest",
+          "<p>Test content</p>"
+        );
+        console.log("Factcheck response:", res);
+        apiResponse = res;
+      }}
+    >
+      API Request<br />
+      Current response: <br />
+      {apiResponse ? JSON.stringify(apiResponse) : "None"}
     </button>
 
     {#if errorMessage}
