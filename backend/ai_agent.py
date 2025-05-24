@@ -3,7 +3,7 @@ import json5
 from qwen_agent.agents import Assistant #type: ignore
 from qwen_agent.tools.base import BaseTool #type: ignore
 from qwen_agent.utils.output_beautify import typewriter_print #type: ignore
-from models import AiSettings, Factoid, FactCheckSource, FactCheckResult, Verdict, SearchRequest, SocialMediaDetailsRequest, AllMediaRequest, MediaDetailsRequest, MediaCommentDetailsRequest
+from models import AiSettings, Factoid, FactCheckSource, FactCheckDetailsRequest, FactCheckResult, Verdict, SocialMediaDetailsRequest, AllMediaRequest, MediaDetailsRequest, MediaCommentDetailsRequest
 import ai_tools
 import os
 
@@ -45,7 +45,7 @@ class Agent:
     
     
     
-    def factcheck_whole_page(self, search_req: SearchRequest) -> FactCheckResult:
+    def factcheck_whole_page(self, search_req: FactCheckDetailsRequest) -> FactCheckResult:
         """
         Fact-check a website using the AI agent.
         :param url: URL of the website to fact-check.
