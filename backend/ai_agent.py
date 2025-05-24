@@ -110,7 +110,7 @@ class Agent:
             self.logger.error('Not implemented yet') #TODO: Implement image fact-checking
             raise NotImplementedError('Image fact-checking is not implemented yet')
         elif all_media.videos is not None and len(all_media.videos) > 0:
-            messages = self.factcheck_media_details(media_det)
+            return self.factcheck_media_details(media_det)
         response = self.ai_run(messages)
         return response
 
@@ -164,7 +164,7 @@ class Agent:
         response = self.ai_run(messages)
         return response
     
-    def ai_run(self, messages: List[Dict] | None) -> FactCheckResult:
+    def ai_run(self, messages: List[Dict]) -> FactCheckResult:
         """
         Run the agent with the given messages.
         :param messages: List of messages to process.
