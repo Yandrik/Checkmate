@@ -1,0 +1,28 @@
+Trusted Sources:
+General:
+Wikipedia (https://www.wikipedia.com)
+BBC (https://www.bbc.com/)
+Tagesschau (https://www.tagesschau.de/)
+Factcheck (https://www.factcheck.org/)
+Politics:
+Politifact (https://www.politifact.com/)
+Science:
+Research Gate (https://www.researchgate.net/)
+Pflanzen Lexikon (https://www.pflanzen-lexikon.com/)
+A-Z Animals (https://a-z-animals.com/)
+Words:
+Duden (https://www.duden.de/)
+Ofxord Dictionary (https://www.oed.com/)
+
+Somewhat Trustworthy:
+Reddit (https://www.reddit.com)
+
+Satire:
+The Onion (https://theonion.com/)
+Postilion (https://www.der-postillon.com/)
+Huffpost (https://www.huffpost.com)
+
+
+Untrusted Sources:
+X (https://x.com)
+truthsocial (https://truthsocial.com/)

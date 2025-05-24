@@ -32,9 +32,15 @@ class Agent:
             instructions_txt = f.read()
         with open(f"{cwd}/example.txt", "r") as f:
             example_txt = f.read()
+        with open(f"{cwd}/sources.txt", "r") as f:
+            sources_txt = f.read()
         system_instruction = f'''
+        Instructions:
         {instructions_txt}
+        Examples:
         {example_txt}
+        Sources:
+        {sources_txt}
         '''
         tools: list[str | dict | BaseTool] = [{
         "mcpServers": {
@@ -105,7 +111,7 @@ class Agent:
             self.logger.error('Not implemented yet') #TODO: Implement image fact-checking
             raise NotImplementedError('Image fact-checking is not implemented yet')
         elif all_media.videos is not None and len(all_media.videos) > 0:
-            messages = self.factcheck_media_details(media_det)
+            return self.factcheck_media_details(media_det)
         response = self.ai_run(messages)
         return response
 
@@ -159,7 +165,7 @@ class Agent:
         response = self.ai_run(messages)
         return response
     
-    def ai_run(self, messages: List[Dict] | None) -> FactCheckResult:
+    def ai_run(self, messages: List[Dict]) -> FactCheckResult:
         """
         Run the agent with the given messages.
         :param messages: List of messages to process.
