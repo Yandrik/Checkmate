@@ -1,6 +1,7 @@
 from qwen_agent.tools.base import BaseTool, register_tool #type: ignore
 import json5
 
+
 # Step 1 (Optional): Add a custom tool named `my_image_gen`.
 @register_tool('fact_checker')
 class MyFactChecker(BaseTool):
