@@ -28,7 +28,7 @@ async def main() -> None:
     app=app,
     host="0.0.0.0")
   server = uvicorn.Server(config=server_config)
-  await server.serve()  # type: ignore[arg-type]
+  await server.serve()
   logger.info("Hypercorn Serve completed, shutting down...")
 
 if __name__ == "__main__":

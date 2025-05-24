@@ -3,10 +3,8 @@ from litestar import Router, post, get, Controller
 from pydantic import HttpUrl
 from models import (
   FactCheckResult,
-  FactCheckSource,
   FactCheckDetailsRequest,
   SocialMediaDetailsRequest,
-  Verdict,
   MediaDetailsRequest,
   MediaCommentDetailsRequest)
 import asyncio
@@ -23,29 +21,47 @@ class FactcheckController(Controller):
 
   @post()
   async def handle_fact_check(self, data: FactCheckDetailsRequest) -> FactCheckResult:
-    HttpUrl(data.url) # type: ignore[arg-type]
-    self.logger.info(f"Received input: {data.title} -> {data.url}")
-    return agent.factcheck_whole_page(data) 
-    
+    try:
+      HttpUrl(data.url) # type: ignore[arg-type]
+      self.logger.info(f"title: {data.title}; url: {data.url};")
+      self.logger.debug(f"Content: {data.content[:50]}...")  # Log only the first 50 characters for brevity
+      return agent.factcheck_whole_page(data)
+    except Exception as e:
+      self.logger.error(f"Error processing fact check: {e}")
+      raise e
 
   @post("/text")
   async def handle_fact_check_text(self, data: str) -> FactCheckResult:
-    self.logger.info(f"Received text input: {data}")
-    raise NotImplementedError("TODO: Implement text fact check")
-    # return await asyncio.to_thread(agent.factcheck_text, data)
+    try:
+      self.logger.info(f"Received text for fact check: {data[:50]}...")
+      return agent.factcheck_plain_text(data)
+    except Exception as e:
+      self.logger.error(f"Error processing text fact check: {e}")
+      raise e  
 
   @post("/socialmedia")
   async def handle_fact_check_socialmedia(self, data: SocialMediaDetailsRequest) -> FactCheckResult:
-    # HttpUrl(data.url) # type: ignore[arg-type]
-    self.logger.info(f"Received input: {data.username} -> {data.displayName}")
-    return agent.factcheck_social_media(data)
+    try:
+      self.logger.info(f"username: {data.username}; displayName: {data.displayName}; content: {data.content}; isAd: {data.isAd}; platform: {data.platform}")
+      return agent.factcheck_social_media(data)
+    except Exception as e:
+      self.logger.error(f"Error processing social media fact check: {e}")
+      raise e
   
   @post("/media")
   async def handle_fact_check_media(self,data: MediaDetailsRequest) -> FactCheckResult:
-    self.logger.info(f"Received input: {data.title} -> {data.url}")
-    return agent.factcheck_media_details(data)
+    try:
+      self.logger.info(f"Received input: {data.title} -> {data.url}")
+      return agent.factcheck_media_details(data)
+    except Exception as e:
+      self.logger.error(f"Error processing media fact check: {e}")
+      raise e
   
   @post("/media/comment")
   async def handle_fact_check_media_comment(self, data: MediaCommentDetailsRequest) -> FactCheckResult:
-    self.logger.info(f"Received input: {data.author} -> {data.channelUrl}")
-    return agent.factcheck_media_comment(data)
+    try:
+      self.logger.info(f"Received input: {data.author} -> {data.channelUrl}")
+      return agent.factcheck_media_comment(data)
+    except Exception as e:
+      self.logger.error(f"Error processing media comment fact check: {e}")
+      raise e
