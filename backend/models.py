@@ -63,17 +63,13 @@ class MediaDetailsRequest:
     url: str
     transcription_close_to_timestamp: str
     transcription_with_more_context: str
+
 @dataclass
 class MediaCommentDetailsRequest:
   author: str
   channelUrl: str
   content: str
 
-# {
-#     "author": "@alsanchez5038",
-#     "channelUrl": "https://www.youtube.com/@alsanchez5038",
-#     "content": "Juhu! Danke dass es euch gibt!"
-# }
 class Verdict(Enum):
   VALID = "valid"
   INVALID = "invalid"
