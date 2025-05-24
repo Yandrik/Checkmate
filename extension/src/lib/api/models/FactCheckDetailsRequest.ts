@@ -2,7 +2,7 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export type SearchRequest = {
+export type FactCheckDetailsRequest = {
     title: string;
     url: string;
     content: string;
