@@ -48,7 +48,7 @@ function createApiRepo() {
         },
 
         async factcheck_comment(comment: string): Promise<Result<FactCheckResult, Error>> {
-            await new Promise(resolve => setTimeout(resolve, 5000));
+            // await new Promise(resolve => setTimeout(resolve, 5000));
             const result = await backendClient.factcheckComment(comment)
             if (result.isOk()) {
                 return ok(result.value);

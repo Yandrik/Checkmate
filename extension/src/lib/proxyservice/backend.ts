@@ -1,12 +1,15 @@
 import { defineProxyService } from "@webext-core/proxy-service";
 import { BackendClient, FactCheckResult, Verdict } from "../api"
 import {ok, err, Result} from "neverthrow";
+import { TweetDetails } from "../twitter_extract";
 
 
 function createApiRepo() {
     const backendClient = new BackendClient(
         {
-            BASE: 'http://localhost:8000',
+            // BASE: 'http://localhost:8000',
+            BASE: 'https://checkmate.wildwolfwuff.de',
+
         }
     );
 
@@ -24,18 +27,19 @@ function createApiRepo() {
             }
         },
 
-        async factcheckComment(comment: string): Promise<Result<FactCheckResult, Error>> {
+        async factcheckComment(comment: TweetDetails): Promise<Result<FactCheckResult, Error>> {
             try {
-                return ok({
-                    score: 0.9,
-                    verdict: Verdict.VALID,
-                    check_result: "MOCK! This comment is factually correct.",
-                    sources: [],
-                    factoids: null,
-                } as FactCheckResult); // Placeholder for actual implementation
-                // return ok(await backendClient.default.factcheckHandleComment({
-                //     comment,
-                // }));
+                return ok(await backendClient.default.factcheckSocialmediaHandleFactCheckSocialmedia(
+                    {
+                        allMedia: comment.allMedia,
+                        content: comment.tweetContent,
+                        displayName: comment.displayName,
+                        isAd: comment.isAd,
+                        platform: 'twitter',
+                        quoted: comment.quotedTweet,
+                        username: comment.username
+                    }
+                ))
             } catch (error) {
                 return err(Error("Failed to perform factcheck on comment", { cause: error }));
             }
