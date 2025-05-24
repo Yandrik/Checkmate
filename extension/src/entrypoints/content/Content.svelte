@@ -6,4 +6,4 @@
 <div class="bg-neon-pink">Content!</div>
 
 <!-- Neon Pink (broke) -->
-<!-- Counter class="bg-neon-pink" /-->
+<Counter class="bg-neon-pink" />
