@@ -21,7 +21,16 @@ async def handle_fact_check(data: SearchRequest) -> FactCheckResult:
   logger.info(f"Received input: {data.title} -> {data.url}")
   return FactCheckResult(
     score=0.5,
-    check_result=f"echo: ${data.content}",
+    check_result=f"echo: {data.content}",
+    verdict=Verdict.UNSURE,
+    sources=[
+      FactCheckSource(
+        name=f"Echo Source: {data.title}",
+        link=data.url),
+      FactCheckSource(
+        name="Dummy Source",
+        link="https://example.com/dummy_source")
+    ])
     verdict=Verdict.UNSURE,
     sources=[
       FactCheckSource(
