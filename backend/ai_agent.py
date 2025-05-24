@@ -3,7 +3,7 @@ import json5
 from qwen_agent.agents import Assistant #type: ignore
 from qwen_agent.tools.base import BaseTool #type: ignore
 from qwen_agent.utils.output_beautify import typewriter_print #type: ignore
-from models import AiSettings, Factoid, FactCheckSource, FactCheckDetailsRequest, FactCheckResult, Verdict, SocialMediaDetailsRequest, AllMediaRequest, MediaDetailsRequest, MediaCommentDetailsRequest
+from models import AiSettings, Factoid, FactCheckSource, FactCheckResult, Verdict, SocialMediaDetailsRequest, AllMediaRequest, MediaDetailsRequest, MediaCommentDetailsRequest, FactCheckDetailsRequest
 import ai_tools
 import os
 
