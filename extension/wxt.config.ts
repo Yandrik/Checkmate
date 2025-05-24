@@ -3,6 +3,9 @@ import wasm from "vite-plugin-wasm";
 import topLevelAwait from "vite-plugin-top-level-await";
 import tailwindcss from '@tailwindcss/vite';
 import { svelte } from '@sveltejs/vite-plugin-svelte';
+import Icons from 'unplugin-icons/vite'
+import TurboConsole from 'unplugin-turbo-console/vite'
+
 
 // See https://wxt.dev/api/config.html
 export default defineConfig({
@@ -32,6 +35,12 @@ export default defineConfig({
       wasm(),
       topLevelAwait(),
       tailwindcss(),
+      Icons({
+        compiler: 'svelte',
+      }),
+      TurboConsole({
+        /* options here */
+      })
       // svelte(),
     ],
   }),
