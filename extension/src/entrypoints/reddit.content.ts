@@ -58,8 +58,6 @@ export default defineContentScript({
             // Create a container for the Svelte component
             const buttonContainer = document.createElement('div');
             buttonContainer.className = 'checkmate-button-container'; // For identification
-            // The Svelte component itself will handle its absolute positioning relative to this container's parent (targetDiv)
-            // So, this container doesn't need specific positioning styles itself unless desired for other reasons.
             commentDiv.appendChild(buttonContainer);
 
             mount(RedditCommentFactCheckButton, {
