@@ -7,12 +7,12 @@ import json5
 @register_tool('fact_checker')
 class MyFactChecker(BaseTool):
     # The `description` tells the agent the functionality of this tool.
-    description = 'A tool that checks the factuality of a given text. '
+    description = 'A tool that checks the factuality of a given text. Give the tool the text, and it will return a verdict, and sources. '
     # The `parameters` tell the agent what input parameters the tool has.
     parameters = [{
         'name': 'prompt',
         'type': 'string',
-        'description': 'What parts of the text are factual and what parts are not? ',
+        'description': 'Text to check for factuality ',
         'required': True
     }]
 
@@ -23,5 +23,6 @@ class MyFactChecker(BaseTool):
             raise ValueError("Invalid params: expected a dict with a 'prompt' key")
         prompt = urllib.parse.quote(data['prompt'])
         return json5.dumps(
-            {'front_end_url': f'https://www.X.com'}, #insert your frontend url here
+            { "verdict": "VALID", "sources": ["https://wikipedia.org", "https://nytimes.com"] },
+            # {'front_end_url': f'https://www.X.com'}, #insert your frontend url here
             ensure_ascii=False)
