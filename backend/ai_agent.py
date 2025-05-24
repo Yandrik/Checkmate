@@ -1,17 +1,23 @@
+import os
 import pprint
-import urllib.parse
 import json5
 from qwen_agent.agents import Assistant #type: ignore
 from qwen_agent.tools.base import BaseTool, register_tool #type: ignore
 from qwen_agent.utils.output_beautify import typewriter_print #type: ignore
+import ai_tools
 
 
 
 # Step 2: Configure the LLM you are using.
 llm_cfg = {
     # Use the model service provided by DashScope:
-    'model': 'qwen-max-latest',
-    'model_type': 'qwen_dashscope',
+    # 'model': 'qwen-max-latest',
+    # 'model_type': 'qwen_dashscope',
+    'api_key': os.getenv('API_KEY', 'NONE'), 
+    'model': 'qwen/qwen3-30b-a3b:free',
+    'model_server': 'https://openrouter.ai/api/v1',
+    'model_type': 'oai',
+    
     # 'api_key': 'YOUR_DASHSCOPE_API_KEY',
     # It will use the `DASHSCOPE_API_KEY' environment variable if 'api_key' is not set here.
 
@@ -21,9 +27,9 @@ llm_cfg = {
     # 'api_key': 'EMPTY',
 
     # (Optional) LLM hyperparameters for generation:
-    'generate_cfg': {
-        'top_p': 0.8
-    }
+    # 'generate_cfg': {
+    #     'top_p': 0.8
+    # }
 }
 
 #
@@ -39,11 +45,10 @@ system_instruction = '''After receiving the user's request, you should:
 - correct every wrong inforamtion and assess a score between 0 and 100 percent how wrong the inforamtion in the original text ist
 - give out the corrected version and the score as an accuracy value`.'''
 tools: list[str | dict | BaseTool] = ['fact_checker', 'code_interpreter']  # `code_interpreter` is a built-in tool for executing code.
-files = ['aufgabenstellung.pdf']  # Give the bot a PDF file to read.
+#files = ['aufgabenstellung.pdf']  # Give the bot a PDF file to read.
 bot = Assistant(llm=llm_cfg,
                 system_message=system_instruction,
-                function_list=tools,
-                files=files)
+                function_list=tools)
 
 # Step 4: Run the agent as a chatbot.
 messages = []  # This stores the chat history.
