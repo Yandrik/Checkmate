@@ -1,0 +1,12 @@
+Trusted Sources:
+Wikipedia (https://www.wikipedia.com)
+BBC (https://www.bbc.com/)
+Politifact (https://www.politifact.com/)
+Factcheck (https://www.factcheck.org/)
+
+
+Satire:
+
+Untrusted Sources
+X (https://x.com)
+truth.social ()

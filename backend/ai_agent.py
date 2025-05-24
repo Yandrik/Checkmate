@@ -64,6 +64,17 @@ class Agent:
         return FactCheckResult(**ai_response_json) #type: ignore
     
     
+    def factcheck_plain_text(self, text: str) -> FactCheckResult:
+        """
+        Fact-check a plain text using the AI agent.
+        :param text: Text to fact-check.
+        :return: FactCheckResult containing the verdict and sources.
+        """
+        messages = [
+            {'role': 'user', 'content': f'Fact-check this text: {text}'}
+        ]
+        response = self.ai_run(messages)
+        return response
     
     def factcheck_whole_page(self, search_req: FactCheckDetailsRequest) -> FactCheckResult:
         """
