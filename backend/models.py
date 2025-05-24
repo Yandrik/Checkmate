@@ -40,8 +40,8 @@ class VideoMediaRequest:
 
 @dataclass
 class AllMediaRequest:
-  images: list[ImageMediaRequest] = Field(default_factory=list)
-  videos: list[VideoMediaRequest] = Field(default_factory=list)
+  images: Optional[list[ImageMediaRequest]] = None #= Field(default_factory=list)
+  videos: Optional[list[VideoMediaRequest]] = None #= Field(default_factory=list)
   hasMedia: bool = False
 
 @dataclass
