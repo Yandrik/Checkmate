@@ -7,10 +7,12 @@ from typing import Optional, List, Union
 
 
 class PostgresSettings(BaseSettings):
+  """Settings for a Postgres database connection"""
   postgres_db: Optional[PostgresDsn] = Field(default =None)
   model_config = SettingsConfigDict(env_prefix='POSTGRES_')
 
 class AiSettings(BaseSettings):
+  """Settings for the AI agent"""
   api_key: Secret[str]
   model: str
   model_server: HttpUrl
@@ -32,6 +34,7 @@ class ImageMediaRequest:
 
 @dataclass
 class VideoMediaRequest:
+  """Model for video media attached to a social media post"""
   type: str
   poster: Optional[str] = None
   duration: Optional[str] = None
@@ -40,12 +43,14 @@ class VideoMediaRequest:
 
 @dataclass
 class AllMediaRequest:
+  """Moddel for information about media attached to a social media post"""
   images: Optional[list[ImageMediaRequest]] = None
   videos: Optional[list[VideoMediaRequest]] = None
   hasMedia: bool = False
 
 @dataclass
 class SocialMediaDetailsRequest:
+  """Request model for general social media"""
   username: Optional[str] = None
   displayName: Optional[str] = None
   content: Optional[str] = None
@@ -56,16 +61,18 @@ class SocialMediaDetailsRequest:
 
 @dataclass
 class MediaDetailsRequest:
-    title: str
-    channel: str
-    channelUrl: str
-    videoId: str
-    url: str
-    transcription_close_to_timestamp: str
-    transcription_with_more_context: str
+  """Request model for yt video"""
+  title: str
+  channel: str
+  channelUrl: str
+  videoId: str
+  url: str
+  transcription_close_to_timestamp: str
+  transcription_with_more_context: str
 
 @dataclass
 class MediaCommentDetailsRequest:
+  """Request model for yt video comment"""
   author: str
   channelUrl: str
   content: str
