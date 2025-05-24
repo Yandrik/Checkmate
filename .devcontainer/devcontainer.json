@@ -14,7 +14,8 @@
         "--directory",
         "backend"
     ],
-    // "postAttachCommand": "cd backend; .venv/bin/python -m uvicorn main.py:app --reload --host 0.0.0.0",
+    "postStartCommand": "uv sync --directory backend",
+    "postAttachCommand": "cd /workspaces/Checkmate/backend; uv run litestar --app main:app schema openapi",
     "customizations": {
         "vscode": {
             "extensions": [
