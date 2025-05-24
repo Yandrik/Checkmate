@@ -1,15 +1,25 @@
+import os
+import logging
 from typing import Dict, List
 import json5
 from qwen_agent.agents import Assistant #type: ignore
 from qwen_agent.tools.base import BaseTool #type: ignore
 from qwen_agent.utils.output_beautify import typewriter_print #type: ignore
-from models import AiSettings, Factoid, FactCheckSource, FactCheckResult, Verdict, SocialMediaDetailsRequest, AllMediaRequest, MediaDetailsRequest, MediaCommentDetailsRequest, FactCheckDetailsRequest
 import ai_tools
-import os
+from models import (
+    AiSettings,
+    Factoid,
+    FactCheckResult,
+    SocialMediaDetailsRequest,
+    AllMediaRequest,
+    MediaDetailsRequest,
+    MediaCommentDetailsRequest,
+    FactCheckDetailsRequest)
 
 class Agent:
     def __init__(self) -> None:
         settings = AiSettings() # type: ignore
+        self.logger = logging.getLogger(__name__)
         llm_cfg = {
             'api_key': settings.api_key.get_secret_value(), 
             'model': settings.model,
@@ -77,19 +87,22 @@ class Agent:
     
     def factcheck_all_media(self, all_media: AllMediaRequest, media_det: MediaDetailsRequest) -> FactCheckResult:
         if all_media.images is None and all_media.videos is None:
-            print('No media to fact-check')
+            self.logger.warning('No media to fact-check')
+            raise ValueError('No media to fact-check')
         elif all_media.images is not None and len(all_media.images) > 0:
-            print('Not implemented yet') #TODO: Implement image fact-checking
+            self.logger.error('Not implemented yet') #TODO: Implement image fact-checking
+            raise NotImplementedError('Image fact-checking is not implemented yet')
         elif all_media.videos is not None and len(all_media.videos) > 0:
             messages = self.factcheck_media_details(media_det)
         response = self.ai_run(messages)
         return response
 
-    def factcheck_media_details(self, media_details: MediaDetailsRequest) -> List[Dict[str, str]]:
+    def factcheck_media_details(self, media_details: MediaDetailsRequest) -> FactCheckResult:
         messages = [
             {'role': 'user', 'content': f'Fact-check this youtube video from this channel: {media_details.channel}. The relevant information you should research to is here: {media_details.transcription_close_to_timestamp}, but also put it into the broad context: {media_details.transcription_with_more_context}. The video ID is {media_details.videoId} and the URL is {media_details.url}. Also check the credibility of the channel.'}
         ]
-        return messages
+        response = self.ai_run(messages)
+        return response
     
     def factcheck_factoids(self, factoids: List[Factoid]) -> FactCheckResult: #TODO: Implement fact-checking for factoids
         """
@@ -115,21 +128,21 @@ class Agent:
         response = self.ai_run(messages)
         return response
     
-    def factcheck_media_comments(self, media_comments: List[MediaCommentDetailsRequest]) -> FactCheckResult:
+    def factcheck_media_comment(self, media_comments: MediaCommentDetailsRequest) -> FactCheckResult:
         """
         Fact-check media comments.
         :param media_comments: List of MediaCommentDetailsRequest objects to fact-check.
         :return: FactCheckResult containing the verdicts and sources for each comment.
         """
-        if not media_comments or len(media_comments) == 0:
+        if not media_comments:
             raise ValueError("No media comments provided for fact-checking.")
         
         messages = []
-        for comment in media_comments:
-            messages.append({
-                'role': 'user',
-                'content': f'Fact-check this comment from author: {comment.author} with content: {comment.content}. Also check the credibility of the author.'
-            })
+        # for comment in :
+        messages.append({
+            'role': 'user',
+            'content': f'Fact-check this comment from author: {media_comments.author} with content: {comment.content}. Also check the credibility of the author.'
+        })
         
         response = self.ai_run(messages)
         return response
@@ -145,7 +158,6 @@ class Agent:
         #messages.append({'role': 'user', 'content': query})
         response = []
         response_plain_text = ''
-        print('bot response:')
         for response in self.bot.run(messages=messages): #type: ignore
             # Streaming output.
             response_plain_text = typewriter_print(response, response_plain_text) #type: ignore
