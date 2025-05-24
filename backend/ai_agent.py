@@ -6,6 +6,7 @@ from qwen_agent.agents import Assistant #type: ignore
 from qwen_agent.tools.base import BaseTool #type: ignore
 from qwen_agent.utils.output_beautify import typewriter_print #type: ignore
 import ai_tools
+
 from models import (
     AiSettings,
     Factoid,
@@ -41,10 +42,10 @@ class Agent:
                 "command": "uvx",
                 "args": [
                     "duckduckgo-mcp-server",
-                ]
+                    ]
+                }
             }
-        }
-    }]
+        }]
         # ['fact_checker']  # `code_interpreter` is a built-in tool for executing code.
         self.bot = Assistant(llm=llm_cfg,
                         system_message=system_instruction,

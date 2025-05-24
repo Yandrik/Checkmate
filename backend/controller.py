@@ -25,7 +25,7 @@ class FactcheckController(Controller):
   async def handle_fact_check(self, data: FactCheckDetailsRequest) -> FactCheckResult:
     HttpUrl(data.url) # type: ignore[arg-type]
     self.logger.info(f"Received input: {data.title} -> {data.url}")
-    return await asyncio.to_thread(agent.factcheck_whole_page,data) 
+    return agent.factcheck_whole_page(data) 
     
 
   @post("/text")
@@ -38,14 +38,14 @@ class FactcheckController(Controller):
   async def handle_fact_check_socialmedia(self, data: SocialMediaDetailsRequest) -> FactCheckResult:
     # HttpUrl(data.url) # type: ignore[arg-type]
     self.logger.info(f"Received input: {data.username} -> {data.displayName}")
-    return await asyncio.to_thread(agent.factcheck_social_media, data)
+    return agent.factcheck_social_media(data)
   
   @post("/media")
   async def handle_fact_check_media(self,data: MediaDetailsRequest) -> FactCheckResult:
     self.logger.info(f"Received input: {data.title} -> {data.url}")
-    return await asyncio.to_thread(agent.factcheck_media_details, data)
+    return agent.factcheck_media_details(data)
   
   @post("/media/comment")
   async def handle_fact_check_media_comment(self, data: MediaCommentDetailsRequest) -> FactCheckResult:
     self.logger.info(f"Received input: {data.author} -> {data.channelUrl}")
-    return await asyncio.to_thread(agent.factcheck_media_comment, data)
+    return agent.factcheck_media_comment(data)

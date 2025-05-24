@@ -8,12 +8,7 @@
       "name": "Python Debugger: Launch backend",
       "type": "debugpy",
       "request": "launch",
-      "module": "uvicorn",
-      "args": [
-        "main:app",
-        "--host",
-        "0.0.0.0",
-      ],
+      "program": "main.py",
       "cwd": "${workspaceFolder}/backend",
       "console": "integratedTerminal"
     },

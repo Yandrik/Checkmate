@@ -1,8 +1,9 @@
 import logging
 from litestar import Litestar, get,Controller
 import hypercorn
-import hypercorn.trio
-import trio_asyncio # type: ignore[import]
+from litestar.di import Provide
+import asyncio # type: ignore[import]
+import uvicorn
 from controller import FactcheckController
 
 logging.basicConfig(level=logging.INFO)
@@ -23,12 +24,12 @@ app = Litestar(
 
 async def main() -> None:
   logger.info("Starting the Litestar app...")
-  config = hypercorn.Config()
-  config.bind = ["0.0.0.0:8000"]
-  config.worker_class = "trio"
-  config.use_reloader = True
-  await hypercorn.trio.serve(app, config)  # type: ignore[arg-type]
+  server_config = uvicorn.Config(
+    app=app,
+    host="0.0.0.0")
+  server = uvicorn.Server(config=server_config)
+  await server.serve()  # type: ignore[arg-type]
   logger.info("Hypercorn Serve completed, shutting down...")
 
 if __name__ == "__main__":
-  trio_asyncio.run(main)
+  asyncio.run(main())
