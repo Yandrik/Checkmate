@@ -11,6 +11,9 @@ services:
     env_file:
       - ./.env
     environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: checkmate
       JUPYTER_TOKEN: easy
       TZ: Europe/Berlin
     tty: true
@@ -21,6 +24,10 @@ services:
       - 5432:5432
     env_file:
       - ./.env
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: checkmate
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
