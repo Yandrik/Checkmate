@@ -25,7 +25,17 @@ class Agent:
         {instructions_txt}
         {example_txt}
         '''
-        tools: list[str | dict | BaseTool] = ['fact_checker']  # `code_interpreter` is a built-in tool for executing code.
+        tools: list[str | dict | BaseTool] = [{
+        "mcpServers": {
+            "websearch" : {
+                "command": "uvx",
+                "args": [
+                    "duckduckgo-mcp-server",
+                ]
+            }
+        }
+    }]
+        # ['fact_checker']  # `code_interpreter` is a built-in tool for executing code.
         self.bot = Assistant(llm=llm_cfg,
                         system_message=system_instruction,
                         function_list=tools)
@@ -142,6 +152,12 @@ class Agent:
         # Prints the Resonse in the FactCheckResult class
         return self.parse_ai_response(response_plain_text) #type: ignore
 
-agent = Agent()
-agent.ai_run(None )
+if __name__ == "__main__":
+    # Example usage
+    agent = Agent()
+    messages = []
+    query = 'Watermelons are vegetables'
+    messages.append({'role': 'user', 'content': query})
+
+    agent.ai_run(messages )
 
