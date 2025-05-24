@@ -1,7 +1,19 @@
 from dataclasses import dataclass
 from enum import Enum
 from typing import Optional
-from pydantic import HttpUrl
+from pydantic import Field, HttpUrl, Secret,PostgresDsn
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+class PostgresSettings(BaseSettings):
+  postgres_db: Optional[PostgresDsn] = Field(default =None)
+  model_config = SettingsConfigDict(env_prefix='POSTGRES_')
+
+class AiSettings(BaseSettings):
+  api_key: Secret[str]
+  model: str
+  model_server: HttpUrl
+  model_type: str
+  model_config = SettingsConfigDict(env_prefix='AI_')
 
 @dataclass
 class SearchRequest:
@@ -9,6 +21,11 @@ class SearchRequest:
   url: str
   content: str
   html: str
+
+@dataclass
+class TwitterSearchRequest(SearchRequest):
+  user: str
+  thread: str
 
 class Verdict(Enum):
   VALID = "valid"
@@ -19,7 +36,7 @@ class Verdict(Enum):
 @dataclass
 class FactCheckSource:
   name: str
-  link: str | HttpUrl  # Using HttpUrl to ensure valid URLs
+  link: str | HttpUrl
 
 @dataclass
 class Factoid:

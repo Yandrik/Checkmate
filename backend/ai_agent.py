@@ -1,22 +1,20 @@
-import os
-import pprint
-import json5
 from qwen_agent.agents import Assistant #type: ignore
-from qwen_agent.tools.base import BaseTool, register_tool #type: ignore
+from qwen_agent.tools.base import BaseTool #type: ignore
 from qwen_agent.utils.output_beautify import typewriter_print #type: ignore
 import ai_tools
+from models import AiSettings
 
-
+settings= AiSettings() # type: ignore
 
 # Step 2: Configure the LLM you are using.
 llm_cfg = {
     # Use the model service provided by DashScope:
     # 'model': 'qwen-max-latest',
     # 'model_type': 'qwen_dashscope',
-    'api_key': os.getenv('API_KEY', 'NONE'), 
-    'model': 'qwen/qwen3-30b-a3b:free',
-    'model_server': 'https://openrouter.ai/api/v1',
-    'model_type': 'oai',
+    'api_key': settings.api_key.get_secret_value(), 
+    'model': settings.model,
+    'model_server': settings.model_server,
+    'model_type': settings.model_type,
     
     # 'api_key': 'YOUR_DASHSCOPE_API_KEY',
     # It will use the `DASHSCOPE_API_KEY' environment variable if 'api_key' is not set here.

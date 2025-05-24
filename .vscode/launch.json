@@ -13,10 +13,9 @@
         "main:app",
         "--host",
         "0.0.0.0",
-        "--reload"
+        "--no-reload"
       ],
       "cwd": "${workspaceFolder}/backend",
-      // "program": "/workspaces/Checkmate/main.py",
       "console": "integratedTerminal"
     },
     {
