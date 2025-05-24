@@ -8,36 +8,17 @@ import ai_tools
 class Agent:
     def __init__(self) -> None:
         settings = AiSettings() # type: ignore
-
-        # Step 2: Configure the LLM you are using.
         llm_cfg = {
-            # Use the model service provided by DashScope:
-            # 'model': 'qwen-max-latest',
-            # 'model_type': 'qwen_dashscope',
             'api_key': settings.api_key.get_secret_value(), 
             'model': settings.model,
             'model_server': str(settings.model_server),
             'model_type': settings.model_type,
-            
-            # 'api_key': 'YOUR_DASHSCOPE_API_KEY',
-            # It will use the `DASHSCOPE_API_KEY' environment variable if 'api_key' is not set here.
-
-            # Use a model service compatible with the OpenAI API, such as vLLM or Ollama:
-            # 'model': 'Qwen2.5-7B-Instruct',
-            # 'model_server': 'http://localhost:8000/v1',  # base_url, also known as api_base
-            # 'api_key': 'EMPTY',
 
             # (Optional) LLM hyperparameters for generation:
             # 'generate_cfg': {
             #     'top_p': 0.8
             # }
         }
-
-        #
-        # ENTER PROMPT TO CREATE THE CORRECT BEHAVIOR OF THE AGENT HERE BELOW
-        #
-
-        # Step 3: Create an agent. Here we use the `Assistant` agent as an example, which is capable of using tools and reading files.
         system_instruction = '''After receiving the user's request, you should:
         - ignore all lines of text that are not relevant for the information of the text,
         - slice the given text into sections with information about the topic,
@@ -47,18 +28,18 @@ class Agent:
         - give out the corrected version and the score as an accuracy value`.
         - Use these keywords to define a section: [score: float (0..1); check_result: str; verdict: Verdict (valid | invalid | partially valid | unsure); sources: list[FactCheckSource] (List of sources with name and link); factoids: Optional[list[Factoid]] = None (Optional list of factoids with detailed information)]'''
         tools: list[str | dict | BaseTool] = ['fact_checker', 'code_interpreter']  # `code_interpreter` is a built-in tool for executing code.
-        #files = ['aufgabenstellung.pdf']  # Give the bot a PDF file to read.
         self.bot = Assistant(llm=llm_cfg,
                         system_message=system_instruction,
                         function_list=tools)
 
 
-    def parse_ai_response(self,ai_response) -> FactCheckResult: #type: ignore
-            ai_response_json = json5.loads(ai_response)
-		    # If the response is a list, take the first element (as in the provided example)
-		    if isinstance(ai_response_json, list):
-		        ai_response_json = ai_response_json[0]
-		    return FactCheckResult(**ai_response_json) #type: ignore
+    def parse_ai_response(self0, ai_response) -> FactCheckResult: #type: ignore
+        ai_response_json = json5.loads(ai_response)
+        # If the response is a list, take the first element (as in the provided example)
+        if isinstance(ai_response_json, list):
+            ai_response_json = ai_response_json[0]
+        return FactCheckResult(**ai_response_json) #type: ignore
+    
     def run(self, messages:str) -> FactCheckResult:
         """
         Run the agent with the given messages.
