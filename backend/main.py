@@ -1,24 +1,36 @@
+from dataclasses import dataclass
+import logging
 from litestar import Litestar, post, get
 import hypercorn
 import hypercorn.trio
-import logging
+from pydantic import HttpUrl
 import trio_asyncio # type: ignore[import]
-from pydantic import BaseModel, HttpUrl
+from models import (FactCheckResult,
+                    FactCheckSource,
+                    SearchRequest,
+                    Verdict)
 
-logging.basicConfig(level=logging.INFO,)
-logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
 
-class SearchRequest(BaseModel):
-  title: str
-  url: HttpUrl
-  content: str
-  html: str 
-class Response(BaseModel):
-  score: float
+logger = logging.getLogger()
+
+
 @post("/factcheck")
-async def handle_fact_check(input: SearchRequest) -> Response:
-  logger.info(f"Received input: {input.model_json_schema()}")
-  return Response(score=0.56)
+async def handle_fact_check(data: SearchRequest) -> FactCheckResult:
+  HttpUrl(data.url) # type: ignore[arg-type]
+  logger.info(f"Received input: {data.title} -> {data.url}")
+  return FactCheckResult(
+    score=0.5,
+    check_result=f"echo: ${data.content}",
+    verdict=Verdict.UNSURE,
+    sources=[
+      FactCheckSource(
+        name=f"Echo Source: {data.title}",
+        link=data.url),
+      FactCheckSource(
+        name="Dummy Source",
+        link="https://example.com/dummy_source")
+    ])
 @get("/")
 async def handle_get() -> object:
   logger.info("Received GET request")
