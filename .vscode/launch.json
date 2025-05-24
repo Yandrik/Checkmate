@@ -8,7 +8,15 @@
       "name": "Python Debugger: Launch backend",
       "type": "debugpy",
       "request": "launch",
-      "program": "/workspaces/Checkmate/backend/main.py",
+      "module": "uvicorn",
+      "args": [
+        "main:app",
+        "--host",
+        "0.0.0.0",
+        "--reload"
+      ],
+      "cwd": "${workspaceFolder}/backend",
+      // "program": "/workspaces/Checkmate/main.py",
       "console": "integratedTerminal"
     },
     {
