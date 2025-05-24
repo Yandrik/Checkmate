@@ -1,36 +1,108 @@
 <script lang="ts">
   import "../../app.css";
-  import { onMount } from "svelte";
+  import {
+    extractTweetDetailsFromElement,
+    type TweetDetails,
+  } from "@/lib/twitter_extract";
 
-  let hostElement: HTMLElement | null = null;
+  // Prop to receive the tweet's root HTML element
+  const { tweetElement } = $props<{ tweetElement: HTMLElement }>();
 
-  onMount(() => {
-    // Access the host element (the div this component is mounted into)
-    // to potentially adjust its parent's style if needed,
-    // though direct parent manipulation from child is not always ideal.
-    // For now, we assume the parent 'cellInnerDiv' will have 'position: relative'
-    // set by the content script.
-  });
+  // Svelte 5 Runes for state
+  let extractedDetails = $state<TweetDetails | null>(null);
+  let isLoading = $state(false);
+  let error = $state<string | null>(null);
 
-  function handleClick() {
+  async function handleClick() {
+    if (isLoading) {
+      console.log("Fact Check button clicked, but still loading details.");
+      return;
+    }
+
+    // Extract details on demand
+    if (!extractedDetails) {
+      isLoading = true;
+      error = null;
+
+      try {
+        if (!tweetElement) {
+          throw new Error("Tweet element not provided.");
+        }
+
+        extractedDetails = await extractTweetDetailsFromElement(tweetElement);
+
+        if (!extractedDetails.username && !extractedDetails.tweetContent) {
+          console.warn(
+            "FactCheckButton: Extracted details are sparse.",
+            extractedDetails,
+            "from element:",
+            tweetElement
+          );
+        }
+      } catch (e: any) {
+        console.error(
+          "Error extracting tweet details in Svelte component:",
+          e,
+          "for element:",
+          tweetElement
+        );
+        error = e.message || "Failed to extract tweet details.";
+        isLoading = false;
+        return;
+      } finally {
+        isLoading = false;
+      }
+    }
+
+    if (error) {
+      console.log("Fact Check button clicked, but there was an error:", error);
+      alert(`Error: ${error}`);
+      return;
+    }
+    if (!extractedDetails) {
+      console.log("Fact Check button clicked, but no details were extracted.");
+      alert("Could not extract tweet details.");
+      return;
+    }
     console.log(
       "Fact Check Svelte button clicked!",
-      hostElement?.parentElement
+      `Username: ${extractedDetails.username}, Display Name: ${extractedDetails.displayName}, Tweet Content: ${extractedDetails.tweetContent}`,
+      `All Media: ${JSON.stringify(extractedDetails.allMedia)}`,
+      `Is Ad: ${extractedDetails.isAd}`,
+      `Quoted Tweet: ${JSON.stringify(extractedDetails.quotedTweet)}`
     );
-    // Add your fact-checking logic here
-    // For example, extract text from the post:
-    // const postText = hostElement?.parentElement?.innerText;
-    // alert(`Post content: ${postText?.substring(0, 100)}...`);
+    // TODO: Add actual fact-checking logic
+    // For example, send extractedDetails to a background script or API
   }
 </script>
 
-<button
-  bind:this={hostElement}
-  onclick={handleClick}
-  class="absolute top-2 right-[4.6rem] z-[10000] px-1 py-2 factcheckbutton"
->
-  Fact Check
-</button>
+{#if isLoading}
+  <button
+    class="absolute top-2 right-[4.6rem] z-[10000] px-1 py-2 factcheckbutton"
+    disabled
+  >
+    Loading...
+  </button>
+{:else if error}
+  <button
+    class="absolute top-2 right-[4.6rem] z-[10000] px-1 py-2 factcheckbutton"
+    title={error}
+    onclick={() => {
+      error = null;
+      extractedDetails = null;
+      handleClick();
+    }}
+  >
+    Retry
+  </button>
+{:else}
+  <button
+    onclick={handleClick}
+    class="absolute top-2 right-[4.6rem] z-[10000] px-1 py-2 factcheckbutton"
+  >
+    Fact Check
+  </button>
+{/if}
 
 <style lang="postcss">
   :root {
@@ -55,41 +127,13 @@
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     z-index: 10000;
   }
-
-  .btn {
-    border-radius: var(--radius-base) /* 0.25rem = 4px */;
-    display: inline-flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-    gap: calc(var(--spacing) * 2) /* 0.5rem = 8px */;
-    text-decoration-line: none;
-    white-space: nowrap;
-    font-size: var(--text-base)
-      /* calc(1rem * var(--text-scaling)) = calc(16px * var(--text-scaling)) */;
-    line-height: var(--text-base--line-height)
-      /* calc(calc(1.5 / 1) ≈ 1.5 * var(--text-scaling)) */;
-    padding-block: calc(var(--spacing) * 1) /* 0.25rem = 4px */;
-    padding-inline: calc(var(--spacing) * 4) /* 1rem = 16px */;
-    transition-property: all;
-    transition-timing-function: var(--default-transition-timing-function)
-      /* cubic-bezier(0.4, 0, 0.2, 1) */;
-    transition-duration: var(--default-transition-duration) /* 150ms */;
-    &:hover {
-      @media (hover: hover) {
-        filter: brightness(125%);
-        @media (prefers-color-scheme: dark) {
-          filter: brightness(75%);
-        }
-      }
-    }
+  .factcheckbutton:disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
   }
-  .preset-outlined-primary-500 {
-    border-width: 1px;
-    border-color: var(--color-primary-500) /* oklch(55.6% 0 0deg) = #737373 */;
+  .factcheckbutton[title]:not(:disabled):hover {
+    /* Style for error button on hover */
+    background-color: #c00000; /* Darker red for error indication */
+    color: white;
   }
-
-  /* You can add component-specific styles here if needed,
-     or rely on Tailwind classes passed via props or applied directly.
-     The inline styles are for quick demonstration as requested. */
 </style>
