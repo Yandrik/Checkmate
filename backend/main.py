@@ -24,7 +24,7 @@ app = Litestar(
 async def main() -> None:
   logger.info("Starting the Litestar app...")
   config = hypercorn.Config()
-  config.bind = "0.0.0.0:8000"
+  config.bind = ["0.0.0.0:8000"]
   config.worker_class = "trio"
   config.use_reloader = True
   await hypercorn.trio.serve(app, config)  # type: ignore[arg-type]
