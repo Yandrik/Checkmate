@@ -7,8 +7,13 @@
     "containerEnv": {
         "TZ": "Europe/Berlin"
     },
-    "postCreateCommand": "cd backend; uv sync",
-    "postAttachCommand": "cd backend; .venv/bin/python -m uvicorn main.py:app --reload",
+    "postCreateCommand": [
+        "uv",
+        "sync",
+        "--directory",
+        "backend"
+    ],
+    // "postAttachCommand": "cd backend; .venv/bin/python -m uvicorn main.py:app --reload --host 0.0.0.0",
     "customizations": {
         "vscode": {
             "extensions": [
