@@ -23,6 +23,6 @@ class MyFactChecker(BaseTool):
             raise ValueError("Invalid params: expected a dict with a 'prompt' key")
         prompt = urllib.parse.quote(data['prompt'])
         return json5.dumps(
-            { "verdict": "VALID", "sources": ["https://wikipedia.org", "https://nytimes.com"] },
+            { "sources": ["https://wikipedia.org", "https://nytimes.com"] },
             # {'front_end_url': f'https://www.X.com'}, #insert your frontend url here
             ensure_ascii=False)
