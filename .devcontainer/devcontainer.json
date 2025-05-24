@@ -31,7 +31,8 @@
                 "qwtel.sqlite-viewer",
                 "usernamehw.errorlens",
                 "ms-python.mypy-type-checker",
-                "charliermarsh.ruff"
+                "charliermarsh.ruff",
+                "Arjun.swagger-viewer"
             ],
             "settings": {
                 "python.defaultInterpreterPath": "${workspaceFolder}/backend/.venv/bin/python",
