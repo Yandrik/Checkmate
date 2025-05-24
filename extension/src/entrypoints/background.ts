@@ -1,4 +1,9 @@
+import { registerBackendClient } from "@/lib/repo/backend";
+
 export default defineBackground(() => {
+
+  registerBackendClient();
+
   browser.contextMenus.create({
     id: "log-selected-text",
     title: "Log Selected Text",
@@ -12,6 +17,7 @@ export default defineBackground(() => {
       }
     }
   });
+
 
   console.log("Background script loaded");
 });
