@@ -4,6 +4,7 @@ import { sendMessage } from "../messaging";
 import { getBackendClient } from "./backend";
 import { FactCheckResult } from "../api";
 import { FactCheckState, getFactCheckDbService } from "./factcheck_db";
+import { TweetDetails } from "../twitter_extract";
 
 
 function createApiRepo() {
@@ -47,13 +48,18 @@ function createApiRepo() {
             return err(new Error("Failed to retrieve content"));
         },
 
-        async factcheck_comment(comment: string): Promise<Result<FactCheckResult, Error>> {
+        async factcheck_comment(comment: TweetDetails): Promise<FactCheckResult> {
             // await new Promise(resolve => setTimeout(resolve, 5000));
-            const result = await backendClient.factcheckComment(comment)
-            if (result.isOk()) {
-                return ok(result.value);
-            } else {
-                return err(new Error("Failed to perform fact-check on comment", { cause: result.error }));
+            try {
+                const result = await backendClient.factcheckComment(comment)
+                console.log(result);
+                if (result.isOk()) {
+                    return result.value;
+                } else {
+                    throw new Error("Failed to perform fact-check on comment", { cause: result });
+                }
+            } catch (error) {
+                throw new Error("Failed to perform fact-check on comment", { cause: error });
             }
         }
 

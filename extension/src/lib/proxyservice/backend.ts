@@ -7,9 +7,9 @@ import { TweetDetails } from "../twitter_extract";
 function createApiRepo() {
     const backendClient = new BackendClient(
         {
-            // BASE: 'http://localhost:8000',
-            BASE: 'https://checkmate.wildwolfwuff.de',
-
+            BASE: 'http://localhost:8000',
+            // BASE: 'http://localhost:8001',
+            // BASE: 'https://checkmate.wildwolfwuff.de',
         }
     );
 

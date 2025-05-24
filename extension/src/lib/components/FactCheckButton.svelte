@@ -8,7 +8,7 @@
   import FactDisplay from "./FactDisplay.svelte";
   import { FactState, fromVerdict } from "@/util/fact_state";
   import { getFactCheckService } from "../proxyservice/factcheck";
-  import { Err } from "neverthrow";
+  import { Err, Ok, Result } from "neverthrow";
   import { scale } from "svelte/transition";
   import CheckInformation from "./CheckInformation.svelte";
   import { FactCheckResult } from "../api";
@@ -91,24 +91,17 @@
     }
 
     factState = FactState.LOADING;
-    const res = await getFactCheckService().factcheck_comment(
-      extractedDetails.tweetContent
-    );
-
-    if (res instanceof Err) {
-      console.error("Fact check error:", res.error);
-      const error = res.error;
+    try {
+      const res =
+        await getFactCheckService().factcheck_comment(extractedDetails);
+      console.log("Fact check response:", res);
+      response = res;
+      factState = fromVerdict(res.verdict);
+    } catch {
+      console.error("Error calling fact check service:", error);
       factState = FactState.NONE;
       return;
-    } else {
-      console.log("Fact check response:", res);
-      response = res.value;
-      factState = fromVerdict(res.value.verdict);
-      console.log(factState);
     }
-
-    // TODO: Add actual fact-checking logic
-    // For example, send extractedDetails to a background script or API
   }
 
   async function handleFactDisplayClick() {
