@@ -1,3 +1,4 @@
+import urllib.parse
 from qwen_agent.tools.base import BaseTool, register_tool #type: ignore
 import json5
 
@@ -22,5 +23,5 @@ class MyFactChecker(BaseTool):
             raise ValueError("Invalid params: expected a dict with a 'prompt' key")
         prompt = urllib.parse.quote(data['prompt'])
         return json5.dumps(
-            {'image_url': f'https://image.pollinations.ai/prompt/{prompt}'}, #insert your frontend url here
+            {'front_end_url': f'https://www.X.com'}, #insert your frontend url here
             ensure_ascii=False)
