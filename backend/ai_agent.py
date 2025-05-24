@@ -1,3 +1,4 @@
+import json5
 from qwen_agent.agents import Assistant #type: ignore
 from qwen_agent.tools.base import BaseTool #type: ignore
 from qwen_agent.utils.output_beautify import typewriter_print #type: ignore
@@ -15,7 +16,7 @@ class Agent:
             # 'model_type': 'qwen_dashscope',
             'api_key': settings.api_key.get_secret_value(), 
             'model': settings.model,
-            'model_server': settings.model_server,
+            'model_server': str(settings.model_server),
             'model_type': settings.model_type,
             
             # 'api_key': 'YOUR_DASHSCOPE_API_KEY',
@@ -53,28 +54,11 @@ class Agent:
 
 
     def parse_ai_response(self,ai_response) -> FactCheckResult: #type: ignore
-        sources = [FactCheckSource(**src) for src in ai_response.get("sources", [])]
-        factoids = None
-        if "factoids" in ai_response and ai_response["factoids"] is not None:
-            factoids = [
-                Factoid(
-                    start=f["start"],
-                    end=f["end"],
-                    text=f["text"],
-                    verdict=f["verdict"],
-                    check_result=f["check_result"],
-                    sources=[FactCheckSource(**src) for src in f.get("sources", [])]
-                )
-                for f in ai_response["factoids"]
-            ]
-        verdict = Verdict(ai_response["verdict"])
-        return FactCheckResult(
-            score=ai_response["score"],
-            check_result=ai_response["check_result"],
-            verdict=verdict,
-            sources=sources,
-            factoids=factoids
-    )
+            ai_response_json = json5.loads(ai_response)
+		    # If the response is a list, take the first element (as in the provided example)
+		    if isinstance(ai_response_json, list):
+		        ai_response_json = ai_response_json[0]
+		    return FactCheckResult(**ai_response_json) #type: ignore
     def run(self, messages:str) -> FactCheckResult:
         """
         Run the agent with the given messages.
