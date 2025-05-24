@@ -31,15 +31,6 @@ async def handle_fact_check(data: SearchRequest) -> FactCheckResult:
         name="Dummy Source",
         link="https://example.com/dummy_source")
     ])
-    verdict=Verdict.UNSURE,
-    sources=[
-      FactCheckSource(
-        name=f"Echo Source: {data.title}",
-        link=data.url),
-      FactCheckSource(
-        name="Dummy Source",
-        link="https://example.com/dummy_source")
-    ])
 @get("/")
 async def handle_get() -> object:
   logger.info("Received GET request")
