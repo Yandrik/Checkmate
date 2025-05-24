@@ -1,8 +1,9 @@
+import json5
 from qwen_agent.agents import Assistant #type: ignore
 from qwen_agent.tools.base import BaseTool #type: ignore
 from qwen_agent.utils.output_beautify import typewriter_print #type: ignore
 import ai_tools
-from models import AiSettings, Factoid, FactCheckSource, FactCheckResult
+from models import AiSettings, Factoid, FactCheckSource, FactCheckResult, Verdict
 
 settings = AiSettings() # type: ignore
 
@@ -13,7 +14,7 @@ llm_cfg = {
     # 'model_type': 'qwen_dashscope',
     'api_key': settings.api_key.get_secret_value(), 
     'model': settings.model,
-    'model_server': settings.model_server,
+    'model_server': str(settings.model_server),
     'model_type': settings.model_type,
     
     # 'api_key': 'YOUR_DASHSCOPE_API_KEY',
@@ -34,15 +35,21 @@ llm_cfg = {
 # ENTER PROMPT TO CREATE THE CORRECT BEHAVIOR OF THE AGENT HERE BELOW
 #
 
+with open("backend/example.txt", "r") as f:
+    example_txt = f.read()
+
 # Step 3: Create an agent. Here we use the `Assistant` agent as an example, which is capable of using tools and reading files.
-system_instruction = '''After receiving the user's request, you should:
+system_instruction = f'''After receiving the user's request, you should:
 - ignore all lines of text that are not relevant for the information of the text,
 - slice the given text into sections with information about the topic,
 - give each slice a number in ascending order
 - search for information to the specific topics online (trusted sources)
 - correct every wrong inforamtion and assess a score between 0 and 100 percent how wrong the inforamtion in the original text ist
 - give out the corrected version and the score as an accuracy value`.
-- Use these keywords to define a section: [score: float (0..1); check_result: str; verdict: Verdict (valid | invalid | partially valid | unsure); sources: list[FactCheckSource] (List of sources with name and link); factoids: Optional[list[Factoid]] = None (Optional list of factoids with detailed information)]'''
+- Use these keywords to define a section: [score: float (0..1); check_result: str; verdict: Verdict (valid | invalid | partially valid | unsure); sources: list[FactCheckSource] (List of sources with name and link); factoids: Optional[list[Factoid]] = None (Optional list of factoids with detailed information)]
+- Use the following template as an example for your response:
+{example_txt}
+'''
 tools: list[str | dict | BaseTool] = ['fact_checker', 'code_interpreter']  # `code_interpreter` is a built-in tool for executing code.
 #files = ['aufgabenstellung.pdf']  # Give the bot a PDF file to read.
 bot = Assistant(llm=llm_cfg,
@@ -51,29 +58,11 @@ bot = Assistant(llm=llm_cfg,
 
 
 def parse_ai_response(ai_response): #type: ignore
-    sources = [FactCheckSource(**src) for src in ai_response.get("sources", [])]
-    factoids = None
-    if "factoids" in ai_response and ai_response["factoids"] is not None:
-        factoids = [
-            Factoid(
-                start=f["start"],
-                end=f["end"],
-                text=f["text"],
-                verdict=f["verdict"],
-                check_result=f["check_result"],
-                sources=[FactCheckSource(**src) for src in f.get("sources", [])]
-            )
-            for f in ai_response["factoids"]
-        ]
-    verdict = Verdict(ai_response["verdict"])
-    return FactCheckResult(
-        score=ai_response["score"],
-        check_result=ai_response["check_result"],
-        verdict=verdict,
-        sources=sources,
-        factoids=factoids
-    )
-    
+    ai_response_json = json5.loads(ai_response)
+    # If the response is a list, take the first element (as in the provided example)
+    if isinstance(ai_response_json, list):
+        ai_response_json = ai_response_json[0]
+    return FactCheckResult(**ai_response_json) #type: ignore
 
 # Step 4: Run the agent as a chatbot.
 messages = []  # This stores the chat history.
@@ -89,7 +78,6 @@ while True:
         # Streaming output.
         response_plain_text = typewriter_print(response, response_plain_text) #type: ignore
     # Prints the Resonse in the FactCheckResult class
-    parse_ai_response(response)
+    parse_ai_response(response_plain_text)
     # Append the bot responses to the chat history.
     messages.extend(response)
-    

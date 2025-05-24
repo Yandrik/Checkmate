@@ -1,0 +1,22 @@
+[
+  {
+    "score": 0.0,
+    "check_result": "Eating stones is not healthy. Stones are inorganic materials composed of minerals and cannot be digested by the human body. Consuming them can lead to severe health risks such as choking, intestinal damage, or poisoning from toxic minerals.",
+    "verdict": "INVALID",
+    "sources": [
+      {
+        "name": "MedlinePlus - Pica Disorder",
+        "link": "https://medlineplus.gov/ency/article/001555.htm"
+      },
+      {
+        "name": "Mayo Clinic - Ingesting Non-Food Items",
+        "link": "https://www.mayoclinic.org/diseases-conditions/pica/symptoms-causes/syc-20351646"
+      },
+      {
+        "name": "NHS - Health Risks of Eating Non-Food Items",
+        "link": "https://www.nhs.uk/conditions/pica/"
+      }
+    ],
+    "factoids": null
+  }
+]
