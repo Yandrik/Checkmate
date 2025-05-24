@@ -7,3 +7,4 @@ After receiving the information, you should:
         - give out the corrected version and the score as an accuracy value`.
         - Use these keywords to define a section: [score: float (0..1); check_result: str; verdict: Verdict (valid | invalid | partially valid | unsure); sources: list[FactCheckSource] (List of sources with name and link); factoids: Optional[list[Factoid]] = None (Optional list of factoids with detailed information)]
         - use the example from the example.txt to format your output.
+        - preferably use the trusted sources from sources.txt

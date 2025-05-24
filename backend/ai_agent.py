@@ -31,9 +31,15 @@ class Agent:
             instructions_txt = f.read()
         with open(f"{cwd}/example.txt", "r") as f:
             example_txt = f.read()
+        with open(f"{cwd}/sources.txt", "r") as f:
+            sources_txt = f.read()
         system_instruction = f'''
+        Instructions:
         {instructions_txt}
+        Examples:
         {example_txt}
+        Sources:
+        {sources_txt}
         '''
         tools: list[str | dict | BaseTool] = [{
         "mcpServers": {
