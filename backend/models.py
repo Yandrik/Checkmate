@@ -3,6 +3,8 @@ from enum import Enum
 from typing import Optional
 from pydantic import Field, HttpUrl, Secret,PostgresDsn,BaseModel
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from typing import Optional, List, Union
+
 
 class PostgresSettings(BaseSettings):
   postgres_db: Optional[PostgresDsn] = Field(default =None)
@@ -22,9 +24,34 @@ class SearchRequest(BaseModel):
   html: str
 
 @dataclass
-class TwitterSearchRequest(SearchRequest):
-  user: str
-  thread: str
+class ImageMediaRequest:
+  type: str
+  url: str
+  alt: str
+  position: Optional[int] = None
+
+@dataclass
+class VideoMediaRequest:
+  type: str
+  poster: Optional[str] = None
+  duration: Optional[str] = None
+  hasVideo: bool = False
+  note: str = ""
+
+@dataclass
+class AllMediaRequest:
+  images: list[ImageMediaRequest] = Field(default_factory=list)
+  videos: list[VideoMediaRequest] = Field(default_factory=list)
+  hasMedia: bool = False
+
+@dataclass
+class SocialMediaDetailsRequest:
+  username: Optional[str] = None
+  displayName: Optional[str] = None
+  content: Optional[str] = None
+  allMedia: Optional[AllMediaRequest] = None
+  isAd: bool = False
+  quotedTweet: Optional['SocialMediaDetailsRequest'] = None  # Recursive type
 
 class Verdict(Enum):
   VALID = "valid"
