@@ -21,8 +21,9 @@
       "name": "Python Debugger: Launch language model",
       "type": "debugpy",
       "request": "launch",
-      "program": "/workspaces/Checkmate/backend/ai_agent.py",
-      "console": "integratedTerminal"
+      "program": "ai_agent.py",
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}/backend"
     }
   ]
 }

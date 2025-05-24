@@ -4,6 +4,7 @@ from qwen_agent.tools.base import BaseTool #type: ignore
 from qwen_agent.utils.output_beautify import typewriter_print #type: ignore
 from models import AiSettings, Factoid, FactCheckSource, FactCheckResult, Verdict
 import ai_tools
+import os
 
 class Agent:
     def __init__(self) -> None:
@@ -13,15 +14,11 @@ class Agent:
             'model': settings.model,
             'model_server': str(settings.model_server),
             'model_type': settings.model_type,
-
-            # (Optional) LLM hyperparameters for generation:
-            # 'generate_cfg': {
-            #     'top_p': 0.8
-            # }
         }
-        with open("backend/instructions.txt", "r") as f:
+        cwd = os.getcwd()
+        with open(f"{cwd}/instructions.txt", "r") as f:
             instructions_txt = f.read()
-        with open("backend/exaample.json", "r") as f:
+        with open(f"{cwd}/example.txt", "r") as f:
             example_txt = f.read()
         system_instruction = f'''
         {instructions_txt}
