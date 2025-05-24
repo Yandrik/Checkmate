@@ -40,6 +40,3 @@ async def main() -> None:
 
 if __name__ == "__main__":
   trio_asyncio.run(main)
-import ai_agent
-
-# ai_agent.main()
