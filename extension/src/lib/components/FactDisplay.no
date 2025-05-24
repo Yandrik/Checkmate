@@ -1,0 +1,110 @@
+<script lang="ts">
+  import { crossfade } from "svelte/transition";
+  import { quintOut } from "svelte/easing";
+  import { ProgressRing } from "@skeletonlabs/skeleton";
+
+  // Icons from unplugin-icons/svelte
+  import CheckIcon from "~icons/mdi/check-circle-outline";
+  import CrossIcon from "~icons/mdi/close-circle-outline";
+  import QuestionIcon from "~icons/mdi/help-circle-outline";
+  import { FactState } from "@/util/fact_state";
+
+  let { classes = "", state = FactState.NONE } = $props();
+
+  const [send, receive] = crossfade({
+    duration: 250, // Base duration for the transition
+    easing: quintOut,
+    fallback(node, _params, intro) {
+      const style = getComputedStyle(node);
+      const opacity = +style.opacity;
+      const transform = style.transform === "none" ? "" : style.transform;
+
+      return {
+        duration: 150,
+        easing: quintOut,
+        css: (t, u) => `
+          transform: ${transform} scale(${t});
+          opacity: ${t * opacity};
+        `,
+      };
+    },
+  });
+
+  // Reactive declarations for dynamic styling
+  let containerClasses = $derived.by(() => {
+    switch (state) {
+      case FactState.LOADING:
+      case FactState.UNKNOWN:
+        return "bg-orange-500";
+      case FactState.VALID:
+        return "bg-green-500";
+      case FactState.INVALID:
+        return "bg-red-500";
+      case FactState.NONE:
+      default:
+        return "bg-gray-200 dark:bg-gray-700"; // Default for NONE state
+    }
+  });
+
+  let iconClasses = "text-white w-3/4 h-3/4"; // Common classes for icons on colored backgrounds
+  let logoClasses = "w-full h-full p-1"; // Classes for the logo in NONE state
+</script>
+
+<div
+  class="fact-display-container rounded-full flex items-center justify-center overflow-hidden {containerClasses} {classes}"
+  style="width: 32px; height: 32px;"
+>
+  {#if state === FactState.NONE}
+    <div
+      class="w-full h-full flex items-center justify-center"
+      in:receive={{ key: FactState.NONE }}
+      out:send={{ key: FactState.NONE }}
+    >
+      <img src="/logo_1.svg" alt="Logo" class={logoClasses} />
+    </div>
+  {:else if state === FactState.LOADING}
+    <div
+      class="w-full h-full flex items-center justify-center p-1"
+      in:receive={{ key: FactState.LOADING }}
+      out:send={{ key: FactState.LOADING }}
+    >
+      <ProgressRing
+        value={null}
+        strokeWidth="4px"
+        meterStroke="stroke-white"
+        trackStroke="stroke-transparent"
+        class="w-full h-full"
+      />
+    </div>
+  {:else if state === FactState.VALID}
+    <div
+      class="w-full h-full flex items-center justify-center"
+      in:receive={{ key: FactState.VALID }}
+      out:send={{ key: FactState.VALID }}
+    >
+      <CheckIcon class={iconClasses} />
+    </div>
+  {:else if state === FactState.INVALID}
+    <div
+      class="w-full h-full flex items-center justify-center"
+      in:receive={{ key: FactState.INVALID }}
+      out:send={{ key: FactState.INVALID }}
+    >
+      <CrossIcon class={iconClasses} />
+    </div>
+  {:else if state === FactState.UNKNOWN}
+    <div
+      class="w-full h-full flex items-center justify-center"
+      in:receive={{ key: FactState.UNKNOWN }}
+      out:send={{ key: FactState.UNKNOWN }}
+    >
+      <QuestionIcon class={iconClasses} />
+    </div>
+  {/if}
+</div>
+
+<style>
+  .fact-display-container {
+    transition: background-color 0.3s ease-in-out;
+  }
+</style>

@@ -1,9 +1,15 @@
 <script lang="ts">
   import "../../app.css";
+  import { browser } from "wxt/browser";
   import {
     extractTweetDetailsFromElement,
     type TweetDetails,
   } from "@/lib/twitter_extract";
+  import FactDisplay from "./FactDisplay.svelte";
+  import { FactState, fromVerdict } from "@/util/fact_state";
+  import { getFactCheckService } from "../proxyservice/factcheck";
+  import { Err } from "neverthrow";
+  import { scale } from "svelte/transition";
 
   // Prop to receive the tweet's root HTML element
   const { tweetElement } = $props<{ tweetElement: HTMLElement }>();
@@ -12,8 +18,16 @@
   let extractedDetails = $state<TweetDetails | null>(null);
   let isLoading = $state(false);
   let error = $state<string | null>(null);
+  let factState = $state(FactState.NONE);
 
   async function handleClick() {
+    if (factState !== FactState.NONE) {
+      console.log(
+        "Fact Check button clicked, but already in a state:",
+        factState
+      );
+      return;
+    }
     if (isLoading) {
       console.log("Fact Check button clicked, but still loading details.");
       return;
@@ -64,45 +78,55 @@
       alert("Could not extract tweet details.");
       return;
     }
-    console.log(
-      "Fact Check Svelte button clicked!",
-      `Username: ${extractedDetails.username}, Display Name: ${extractedDetails.displayName}, Tweet Content: ${extractedDetails.tweetContent}`,
-      `All Media: ${JSON.stringify(extractedDetails.allMedia)}`,
-      `Is Ad: ${extractedDetails.isAd}`,
-      `Quoted Tweet: ${JSON.stringify(extractedDetails.quotedTweet)}`
+    console.log("Fact Check Svelte button clicked!", extractedDetails);
+
+    if (!extractedDetails.tweetContent) {
+      console.warn("No tweet content to fact-check.");
+      alert("No tweet content to fact-check.");
+      return;
+    }
+
+    factState = FactState.LOADING;
+    const res = await getFactCheckService().factcheck_comment(
+      extractedDetails.tweetContent
     );
+
+    if (res instanceof Err) {
+      console.error("Fact check error:", res.error);
+      const error = res.error;
+      factState = FactState.NONE;
+      return;
+    } else {
+      console.log("Fact check response:", res);
+      factState = fromVerdict(res.value.verdict);
+      console.log(factState);
+    }
+
     // TODO: Add actual fact-checking logic
     // For example, send extractedDetails to a background script or API
   }
+
+  async function handleFactDisplayClick() {
+    if (factState === FactState.NONE) handleClick();
+  }
 </script>
 
-{#if isLoading}
-  <button
-    class="absolute top-2 right-[4.6rem] z-[10000] px-1 py-2 factcheckbutton"
-    disabled
-  >
-    Loading...
-  </button>
-{:else if error}
-  <button
-    class="absolute top-2 right-[4.6rem] z-[10000] px-1 py-2 factcheckbutton"
-    title={error}
-    onclick={() => {
-      error = null;
-      extractedDetails = null;
-      handleClick();
-    }}
-  >
-    Retry
-  </button>
-{:else}
-  <button
-    onclick={handleClick}
-    class="absolute top-2 right-[4.6rem] z-[10000] px-1 py-2 factcheckbutton"
-  >
-    Fact Check
-  </button>
-{/if}
+<button
+  onclick={handleClick}
+  class="absolute top-2 right-[4.6rem] z-[9999] m-0 p-0 py-1 factcheckbutton flex flex-row items-center justify-center transition-[width]"
+  style="width: {factState === FactState.NONE
+    ? '150px'
+    : '1.8rem'}; transition: width 0.3s ease; height: 1.8rem;"
+>
+  {#if factState === FactState.NONE}
+    <span out:scale={{ duration: 200, start: 0 }}>Fact Check</span>
+  {/if}
+  <FactDisplay
+    onclick={handleFactDisplayClick}
+    state={factState}
+    classes="ztop h-5 w-5"
+  />
+</button>
 
 <style lang="postcss">
   :root {
@@ -135,5 +159,9 @@
     /* Style for error button on hover */
     background-color: #c00000; /* Darker red for error indication */
     color: white;
+  }
+
+  .ztop {
+    z-index: 10000;
   }
 </style>

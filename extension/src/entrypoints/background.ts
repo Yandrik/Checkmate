@@ -1,8 +1,13 @@
-import { registerBackendClient } from "@/lib/repo/backend";
+import { registerBackendClient } from "@/lib/proxyservice/backend";
+import { registerFactCheckService } from "@/lib/proxyservice/factcheck";
+import { registerFactCheckDbService } from "@/lib/proxyservice/factcheck_db";
+
 
 export default defineBackground(() => {
 
   registerBackendClient();
+  registerFactCheckDbService();
+  registerFactCheckService();
 
   browser.contextMenus.create({
     id: "log-selected-text",

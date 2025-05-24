@@ -1,3 +1,5 @@
+import { onMessage } from "@/lib/messaging";
+
 export default defineContentScript({
     matches: ['<all_urls>'],
     main() {
@@ -13,17 +15,15 @@ export default defineContentScript({
         }
 
         // Log content immediately when script loads
-        console.log('Content script loaded, current page content:', getPageContent());
+        // console.log('Content script loaded, current page content:', getPageContent());
 
-        // Listen for messages
-        browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
-            if (message.action === 'getContent') {
-                const content = getPageContent();
-                console.log('Message received, returning page content:', content);
-                sendResponse(content);
-                return true; // Keep message channel open for async response
-            }
-        });
+        onMessage("getPageContent", (_) => {
+            const content = getPageContent();
+            console.log('Message received, returning page content:', content);
+            return content;
+
+        })
+
 
         console.log('Content script initialized and listening for messages');
     },
