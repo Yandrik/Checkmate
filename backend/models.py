@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from enum import Enum
 from typing import Optional
-from pydantic import Field, HttpUrl, Secret,PostgresDsn
+from pydantic import Field, HttpUrl, Secret,PostgresDsn,BaseModel
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class PostgresSettings(BaseSettings):
@@ -15,8 +15,7 @@ class AiSettings(BaseSettings):
   model_type: str
   model_config = SettingsConfigDict(env_prefix='AI_')
 
-@dataclass
-class SearchRequest:
+class SearchRequest(BaseModel):
   title: str
   url: str
   content: str
