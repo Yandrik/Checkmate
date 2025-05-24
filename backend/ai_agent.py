@@ -2,19 +2,30 @@ from qwen_agent.agents import Assistant #type: ignore
 from qwen_agent.tools.base import BaseTool #type: ignore
 from qwen_agent.utils.output_beautify import typewriter_print #type: ignore
 import ai_tools
+<<<<<<< Updated upstream
 from models import AiSettings, Factoid, FactCheckSource, FactCheckResult
 
 settings= AiSettings() # type: ignore
+=======
+from models import Factoid, FactCheckResult, FactCheckSource, Verdict #type: ignore
+>>>>>>> Stashed changes
 
 # Step 2: Configure the LLM you are using.
 llm_cfg = {
     # Use the model service provided by DashScope:
     # 'model': 'qwen-max-latest',
     # 'model_type': 'qwen_dashscope',
+<<<<<<< Updated upstream
     'api_key': settings.api_key.get_secret_value(), 
     'model': settings.model,
     'model_server': settings.model_server,
     'model_type': settings.model_type,
+=======
+    'api_key': os.getenv('AI_API_KEY', 'NONE'), 
+    'model': 'qwen/qwen3-30b-a3b:free',
+    'model_server': 'https://openrouter.ai/api/v1',
+    'model_type': 'oai',
+>>>>>>> Stashed changes
     
     # 'api_key': 'YOUR_DASHSCOPE_API_KEY',
     # It will use the `DASHSCOPE_API_KEY' environment variable if 'api_key' is not set here.
