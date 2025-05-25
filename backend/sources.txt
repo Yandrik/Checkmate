@@ -1,6 +1,7 @@
 Trusted Sources:
 General:
 Wikipedia (https://www.wikipedia.com)
+News:
 BBC (https://www.bbc.com/)
 Tagesschau (https://www.tagesschau.de/)
 Factcheck (https://www.factcheck.org/)

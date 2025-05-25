@@ -2,9 +2,13 @@ import enum
 
 TRUSTED_SOURCES_GENERAL = [
   {"name": "Wikipedia", "url": "https://www.wikipedia.com"},
+  {"name": "Factcheck", "url": "https://www.factcheck.org/"},
+]
+
+TRUSTED_SOURCES_NEWS = [
   {"name": "BBC", "url": "https://www.bbc.com/"},
   {"name": "Tagesschau", "url": "https://www.tagesschau.de/"},
-  {"name": "Factcheck", "url": "https://www.factcheck.org/"},
+  {"name": "Reuters", "url": "https://www.reuters.com/"},
 ]
 
 TRUSTED_SOURCES_POLITICS = [
@@ -42,6 +46,7 @@ ALL_TRUSTED_SOURCES = TRUSTED_SOURCES_GENERAL + TRUSTED_SOURCES_POLITICS + TRUST
 
 class TrustedSourceType(enum.Enum):
     GENERAL = "general"
+    NEWS = "news"
     POLITICS = "politics"
     SCIENCE = "science"
     WORDS = "words"
@@ -67,6 +72,8 @@ def build_url(source_type: TrustedSourceType) -> str:
     """
     if source_type == TrustedSourceType.GENERAL:
         return " OR ".join([f'site:{x["url"]}' for x in TRUSTED_SOURCES_GENERAL])
+    elif source_type == TrustedSourceType.NEWS:
+        return " OR ".join([f'site:{x["url"]}' for x in TRUSTED_SOURCES_NEWS])
     elif source_type == TrustedSourceType.POLITICS:
         return " OR ".join([f'site:{x["url"]}' for x in TRUSTED_SOURCES_POLITICS])
     elif source_type == TrustedSourceType.SCIENCE:
