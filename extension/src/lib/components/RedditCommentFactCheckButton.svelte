@@ -102,7 +102,7 @@
 <button
   bind:this={hostElement}
   onclick={handleClick}
-  class="absolute top right-[1.0rem] z-[10000] m-0 p-0 py-1 factcheckbutton flex flex-row items-center justify-center transition-[width]"
+  class="ztop factcheckbutton"
   style="width: {factState === FactState.NONE
     ? '150px'
     : '1.8rem'}; transition: width 0.3s ease; height: 1.8rem;"
@@ -132,32 +132,68 @@
   }
 
   .factcheckbutton {
-    background-color: black;
-    border-color: gray;
-    border-width: 1.2px;
-    color: gray;
-    border-radius: 9999rem;
-    padding: 0.2rem 0.5rem;
-    font-size: 0.7rem;
-    font-weight: 600;
-    text-align: center;
-    text-decoration: none;
-    cursor: pointer;
+    all: unset !important;
+    position: absolute !important;
+    top: 1rem !important;
+    right: 2rem !important;
+    z-index: 10000 !important;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-sizing: border-box !important;
+    height: 32px !important; /* Feste Höhe */
+    padding: 0 10px !important; /* Horizontaler Abstand */
+    background-color: black !important;
+    border: 1.5px solid gray !important;
+    color: gray !important;
+    border-radius: 9999px !important;
+    font-size: 14px !important;
+    font-family: Arial, sans-serif !important;
+    font-weight: 500 !important;
+    text-align: center !important;
+    text-decoration: none !important;
+    cursor: pointer !important;
     transition:
-      background-color 0.3s ease,
-      color 0.3s ease;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    z-index: 10000;
-    margin-top: -30px;
+      background-color 0.3s,
+      color 0.3s,
+      width 0.3s !important;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
+    overflow: visible !important;
+    margin-top: -50px !important;
   }
+
+  .factcheckbutton.icononly {
+    width: 40px !important;
+    height: 40px !important;
+    padding: 0 !important;
+    justify-content: center !important;
+  }
+
   .factcheckbutton:disabled {
-    cursor: not-allowed;
-    opacity: 0.7;
+    cursor: not-allowed !important;
+    opacity: 0.7 !important;
   }
+
   .factcheckbutton[title]:not(:disabled):hover {
-    /* Style for error button on hover */
-    background-color: #c00000; /* Darker red for error indication */
-    color: white;
+    background-color: #c00000 !important;
+    color: white !important;
+  }
+
+  .factcheckbutton svg {
+    width: 24px !important;
+    height: 24px !important;
+    display: block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .factcheckbutton span {
+    margin-left: 8px !important;
+    margin-right: 0 !important;
+    white-space: nowrap !important;
+    font-size: 14px !important;
+    line-height: 1 !important;
   }
 
   .ztop {

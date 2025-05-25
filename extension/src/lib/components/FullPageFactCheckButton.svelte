@@ -1,5 +1,6 @@
 <script lang="ts">
   import "../../app.css";
+  import { browser } from "wxt/browser";
   import FactDisplay from "./FactDisplay.svelte";
   import { FactState, fromVerdict } from "@/util/fact_state";
   import { getFactCheckService } from "../proxyservice/factcheck";
