@@ -1,17 +1,21 @@
 <script lang="ts">
   import "../../app.css";
   import { extractRedditDetailsFromElement } from "@/lib/reddit_extract";
+  import type { SocialMediaDetails } from "./social_media_interfaces";
   import FactDisplay from "./FactDisplay.svelte";
   import { FactState, fromVerdict } from "@/util/fact_state";
   import { getFactCheckService } from "../proxyservice/factcheck";
-  import { Err } from "neverthrow";
   import { scale } from "svelte/transition";
+  import CheckInformation from "./CheckInformation.svelte";
+  import { FactCheckResult } from "../api";
 
   let hostElement: HTMLElement | null = null;
-  let extractedDetails: any = null;
+  let extractedDetails = $state<SocialMediaDetails | null>(null);
   let isLoading = $state(false);
   let error = $state<string | null>(null);
   let factState = $state(FactState.NONE);
+  let showInfo = $state(false);
+  let response = $state<FactCheckResult | null>(null);
 
   function findRedditRootElement(el: HTMLElement | null): HTMLElement | null {
     while (el) {
@@ -44,20 +48,9 @@
       if (!redditRoot) throw new Error("Kein shreddit-comment gefunden!");
 
       extractedDetails = extractRedditDetailsFromElement(redditRoot);
-
-      if (!extractedDetails || !extractedDetails.content) {
-        console.warn(
-          "FactCheckButton: Extracted details are sparse.",
-          extractedDetails,
-          "from element:",
-          redditRoot,
-        );
-      }
+      console.log("Extracted reddit comment details:", extractedDetails);
     } catch (e: any) {
-      console.error(
-        "Error extracting tweet details in Svelte component:",
-        e
-      );
+      console.error("Error extracting tweet details in Svelte component:", e);
       error = e.message || "Failed to extract tweet details.";
       isLoading = false;
       return;
@@ -65,26 +58,44 @@
       isLoading = false;
     }
 
+    if (error) {
+      console.log("Fact Check button clicked, but there was an error:", error);
+      alert(`Error: ${error}`);
+      return;
+    }
+    if (!extractedDetails) {
+      console.log("Fact Check button clicked, but no details were extracted.");
+      alert("Could not extract details.");
+      return;
+    }
+
+    if (!extractedDetails.username && !extractedDetails.content) {
+      console.warn("No content to fact-check.");
+      alert("No content to fact-check.");
+      return;
+    }
+
     factState = FactState.LOADING;
-
-    const res = await getFactCheckService().factcheck_comment(
-      extractedDetails.content,
-    );
-
-    if (res instanceof Err) {
-      console.error("Fact check error:", res.error);
-      const error = res.error;
+    try {
+      const res =
+        await getFactCheckService().factcheck_comment(extractedDetails);
+      console.log("Fact check response:", res);
+      response = res;
+      factState = fromVerdict(res.verdict);
+    } catch {
+      console.error("Error calling fact check service:", error);
       factState = FactState.NONE;
       return;
-    } else {
-      console.log("Fact check response:", res);
-      factState = fromVerdict(res.value.verdict);
-      console.log(factState);
     }
   }
 
   async function handleFactDisplayClick() {
     if (factState === FactState.NONE) handleClick();
+    else if (factState === FactState.LOADING) {
+      console.log("Fact check is still loading, please wait.");
+    } else {
+      showInfo = !showInfo; // Toggle the display of additional info
+    }
   }
 </script>
 
@@ -105,6 +116,15 @@
     classes="ztop h-5 w-5"
   />
 </button>
+
+{#if showInfo && response !== null}
+  <CheckInformation
+    {response}
+    classes="absolute top-12 right-4"
+    state={factState}
+    zindex={10000000}
+  />
+{/if}
 
 <style lang="postcss">
   :root {

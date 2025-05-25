@@ -1,14 +1,10 @@
 <script lang="ts">
   import "../../app.css";
-  import { browser } from "wxt/browser";
-  import {
-    extractTweetDetailsFromElement,
-    type TweetDetails,
-  } from "@/lib/twitter_extract";
+  import {extractTweetDetailsFromElement} from "@/lib/twitter_extract";
+  import type { SocialMediaDetails } from "./social_media_interfaces";
   import FactDisplay from "./FactDisplay.svelte";
   import { FactState, fromVerdict } from "@/util/fact_state";
   import { getFactCheckService } from "../proxyservice/factcheck";
-  import { Err, Ok, Result } from "neverthrow";
   import { scale } from "svelte/transition";
   import CheckInformation from "./CheckInformation.svelte";
   import { FactCheckResult } from "../api";
@@ -17,7 +13,7 @@
   const { tweetElement } = $props<{ tweetElement: HTMLElement }>();
 
   // Svelte 5 Runes for state
-  let extractedDetails = $state<TweetDetails | null>(null);
+  let extractedDetails = $state<SocialMediaDetails | null>(null);
   let isLoading = $state(false);
   let error = $state<string | null>(null);
   let factState = $state(FactState.NONE);
@@ -28,7 +24,7 @@
     if (factState !== FactState.NONE) {
       console.log(
         "Fact Check button clicked, but already in a state:",
-        factState
+        factState,
       );
       return;
     }
@@ -46,23 +42,14 @@
         if (!tweetElement) {
           throw new Error("Tweet element not provided.");
         }
-
         extractedDetails = await extractTweetDetailsFromElement(tweetElement);
-
-        if (!extractedDetails.username && !extractedDetails.tweetContent) {
-          console.warn(
-            "FactCheckButton: Extracted details are sparse.",
-            extractedDetails,
-            "from element:",
-            tweetElement
-          );
-        }
+        console.log("Extracted tweet details:", extractedDetails);
       } catch (e: any) {
         console.error(
           "Error extracting tweet details in Svelte component:",
           e,
           "for element:",
-          tweetElement
+          tweetElement,
         );
         error = e.message || "Failed to extract tweet details.";
         isLoading = false;
@@ -79,14 +66,13 @@
     }
     if (!extractedDetails) {
       console.log("Fact Check button clicked, but no details were extracted.");
-      alert("Could not extract tweet details.");
+      alert("Could not extract details.");
       return;
     }
-    console.log("Fact Check Svelte button clicked!", extractedDetails);
 
-    if (!extractedDetails.tweetContent) {
-      console.warn("No tweet content to fact-check.");
-      alert("No tweet content to fact-check.");
+    if (!extractedDetails.username && !extractedDetails.content) {
+      console.warn("No content to fact-check.");
+      alert("No content to fact-check.");
       return;
     }
 

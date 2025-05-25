@@ -1,14 +1,4 @@
-import type { ImageMedia, VideoMedia, AllMedia } from "./twitter_extract";
-
-export interface YoutubeVideoDetails {
-    title: string | null;
-    channel: string | null;
-    channelUrl: string | null;
-    videoId: string | null;
-    url: string | null;
-    transcription_close_to_timestamp: string | null;
-    transcription_with_more_context: string | null;
-}
+import type { VideoDetails } from "./social_media_interfaces";
 
 function getCurrentVideoTime(): number | null {
     const video = document.querySelector('video');
@@ -75,7 +65,7 @@ export function getTranscriptSnippet(
         .trim();
 }
 
-export async function extractYoutubeVideoDetailsFromDocument(doc: Document = document): Promise<YoutubeVideoDetails> {
+export async function extractYoutubeVideoDetailsFromDocument(doc: Document = document): Promise<VideoDetails> {
     // Titel
     let title: string | null = null;
     const titleElem = doc.querySelector('h1.ytd-watch-metadata');
@@ -94,11 +84,6 @@ export async function extractYoutubeVideoDetailsFromDocument(doc: Document = doc
     const channelLink = doc.querySelector('ytd-channel-name a');
     const channel = channelLink?.textContent?.trim() || null;
     const channelUrl = channelLink instanceof HTMLAnchorElement ? channelLink.href : null;
-
-    // Video-ID aus URL
-    const url = window.location.href;
-    const videoIdMatch = url.match(/[?&]v=([a-zA-Z0-9_-]{11})/);
-    const videoId = videoIdMatch ? videoIdMatch[1] : null;
 
     let transcription_close_to_timestamp: string | null = null;
     let transcription_with_more_context: string | null = null;
@@ -122,8 +107,6 @@ export async function extractYoutubeVideoDetailsFromDocument(doc: Document = doc
         title,
         channel,
         channelUrl,
-        videoId,
-        url,
         transcription_close_to_timestamp,
         transcription_with_more_context,
     };

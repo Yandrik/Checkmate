@@ -1,22 +1,30 @@
 <script lang="ts">
     import "../../app.css";
-    import { onMount } from "svelte";
     import { extractTruthsocialDetails } from "@/lib/truthsocial_extract";
+    import type { SocialMediaDetails } from "./social_media_interfaces";
     import FactDisplay from "./FactDisplay.svelte";
     import { FactState, fromVerdict } from "@/util/fact_state";
     import { getFactCheckService } from "../proxyservice/factcheck";
-    import { Err } from "neverthrow";
     import { scale } from "svelte/transition";
+    import CheckInformation from "./CheckInformation.svelte";
+    import { FactCheckResult } from "../api";
 
     let hostElement: HTMLElement | null = null;
-    let extractedDetails: any = null;
-    let isLoading = false;
-    let error: string | null = null;
-    let factState = FactState.NONE;
+    let extractedDetails = $state<SocialMediaDetails | null>(null);
+    let isLoading = $state(false);
+    let error = $state<string | null>(null);
+    let factState = $state(FactState.NONE);
+    let showInfo = $state(false);
+    let response = $state<FactCheckResult | null>(null);
 
-    function findTruthSocialRootElement(el: HTMLElement | null): HTMLElement | null {
+    function findTruthSocialRootElement(
+        el: HTMLElement | null,
+    ): HTMLElement | null {
         while (el) {
-            if (el.classList?.contains("status__wrapper") && el.hasAttribute("data-id")) {
+            if (
+                el.classList?.contains("status__wrapper") &&
+                el.hasAttribute("data-id")
+            ) {
                 return el;
             }
             if (el.classList?.contains("detailed-actualStatus")) {
@@ -32,59 +40,87 @@
         event.preventDefault();
 
         if (factState !== FactState.NONE) {
-        console.log(
-            "Fact Check button clicked, but already in a state:",
-            factState
-        );
-        return;
+            console.log(
+                "Fact Check button clicked, but already in a state:",
+                factState,
+            );
+            return;
         }
         if (isLoading) {
-        console.log("Fact Check button clicked, but still loading details.");
-        return;
+            console.log(
+                "Fact Check button clicked, but still loading details.",
+            );
+            return;
         }
 
         isLoading = true;
         error = null;
 
         try {
-        const postRoot = findTruthSocialRootElement(hostElement);
-        if (!postRoot) throw new Error("Kein truth social post root gefunden!");
+            const postRoot = findTruthSocialRootElement(hostElement);
+            if (!postRoot)
+                throw new Error("Keinen Truth-Social Post gefunden.");
 
-        extractedDetails = extractTruthsocialDetails(postRoot);
-
-        if (!extractedDetails || !extractedDetails.content) {
-            throw new Error("Keine Truth-Social gefunden.");
-        }
+            extractedDetails = extractTruthsocialDetails(postRoot);
+            console.log(
+                "Extracted truth social post details:",
+                extractedDetails,
+            );
         } catch (e: any) {
-        console.error(
-            "Error extracting reddit post details in Svelte component:",
-            e
-        );
-        error = e.message || "Failed to extract reddit post details.";
-        isLoading = false;
-        return;
+            console.error(
+                "Error extracting truth social post details in Svelte component:",
+                e,
+            );
+            error = e.message || "Failed to extract truth sicual post details.";
+            isLoading = false;
+            return;
         } finally {
-        isLoading = false;
+            isLoading = false;
+        }
+
+        if (error) {
+            console.log(
+                "Fact Check button clicked, but there was an error:",
+                error,
+            );
+            alert(`Error: ${error}`);
+            return;
+        }
+        if (!extractedDetails) {
+            console.log(
+                "Fact Check button clicked, but no details were extracted.",
+            );
+            alert("Could not extract details.");
+            return;
+        }
+
+        if (!extractedDetails.username && !extractedDetails.content) {
+            console.warn("No content to fact-check.");
+            alert("No content to fact-check.");
+            return;
         }
 
         factState = FactState.LOADING;
-
-        const res = await getFactCheckService().factcheck_comment(
-        extractedDetails.content
-        );
-
-        if (res instanceof Err) {
-        console.error("Fact check error:", res.error);
-        error = res.error;
-        factState = FactState.NONE;
-        return;
-        } else {
-        factState = fromVerdict(res.value.verdict);
+        try {
+            const res =
+                await getFactCheckService().factcheck_comment(extractedDetails);
+            console.log("Fact check response:", res);
+            response = res;
+            factState = fromVerdict(res.verdict);
+        } catch {
+            console.error("Error calling fact check service:", error);
+            factState = FactState.NONE;
+            return;
         }
     }
 
     async function handleFactDisplayClick() {
         if (factState === FactState.NONE) handleClick();
+        else if (factState === FactState.LOADING) {
+            console.log("Fact check is still loading, please wait.");
+        } else {
+            showInfo = !showInfo; // Toggle the display of additional info
+        }
     }
 </script>
 
@@ -105,6 +141,15 @@
         classes="ztop h-5 w-5"
     />
 </button>
+
+{#if showInfo && response !== null}
+    <CheckInformation
+        {response}
+        classes="absolute top-12 right-4"
+        state={factState}
+        zindex={10000000}
+    />
+{/if}
 
 <style lang="postcss">
     :root {

@@ -1,7 +1,7 @@
 import { defineProxyService } from "@webext-core/proxy-service";
 import { BackendClient, FactCheckResult, Verdict } from "../api"
 import {ok, err, Result} from "neverthrow";
-import { TweetDetails } from "../twitter_extract";
+import { SocialMediaDetails, VideoDetails } from "../social_media_interfaces";
 
 
 function createApiRepo() {
@@ -27,19 +27,17 @@ function createApiRepo() {
             }
         },
 
-        async factcheckComment(comment: TweetDetails): Promise<Result<FactCheckResult, Error>> {
+        async factcheckComment(comment: SocialMediaDetails): Promise<Result<FactCheckResult, Error>> {
             try {
-                return ok(await backendClient.default.factcheckSocialmediaHandleFactCheckSocialmedia(
-                    {
-                        allMedia: comment.allMedia,
-                        content: comment.tweetContent,
-                        displayName: comment.displayName,
-                        isAd: comment.isAd,
-                        platform: 'twitter',
-                        quoted: comment.quotedTweet,
-                        username: comment.username
-                    }
-                ))
+                return ok(await backendClient.default.factcheckSocialmediaHandleFactCheckSocialmedia(comment))
+            } catch (error) {
+                return err(Error("Failed to perform factcheck on comment", { cause: error }));
+            }
+        },
+
+        async factcheckVideo(video_details: VideoDetails): Promise<Result<FactCheckResult, Error>> {
+            try {
+                return ok(await backendClient.default.(video_details))
             } catch (error) {
                 return err(Error("Failed to perform factcheck on comment", { cause: error }));
             }

@@ -1,35 +1,4 @@
-// --- Interfaces ---
-export interface ImageMedia {
-  type: 'image';
-  url: string;
-  alt: string;
-  position?: number;
-}
-
-export interface VideoMedia {
-  type: 'video';
-  poster: string | null; // Thumbnail image
-  duration: string | null;
-  hasVideo: boolean;
-  note: string;
-}
-
-export interface AllMedia {
-  images: ImageMedia[];
-  videos: VideoMedia[];
-  hasMedia: boolean;
-}
-
-export interface TweetDetails {
-  username: string | null | undefined;
-  displayName: string | null | undefined;
-  tweetContent: string | null | undefined;
-  allMedia?: AllMedia | null;
-  isAd: boolean;
-  quotedTweet?: TweetDetails | null; // Recursive type
-}
-
-// --- Extraction Logic ---
+import type { AllMedia, ImageMedia, VideoMedia, SocialMediaDetails } from "./social_media_interfaces";
 
 // Helper to ensure all queries are within a specific article context if provided
 function queryInArticle(element: HTMLElement, selector: string): Element | null {
@@ -121,7 +90,7 @@ function extractAllMedia(tweetElement: HTMLElement): AllMedia {
   };
 }
 
-export async function extractTweetDetailsFromElement(div: HTMLElement): Promise<TweetDetails> {
+export async function extractTweetDetailsFromElement(div: HTMLElement): Promise<SocialMediaDetails> {
   // div is expected to be the div[data-testid="cellInnerDiv"]
   const articleElement = div.querySelector('article[role="article"]');
 
@@ -148,7 +117,7 @@ export async function extractTweetDetailsFromElement(div: HTMLElement): Promise<
   let displayName: string | null | undefined = undefined;
   let tweetContent: string | null | undefined = undefined;
   let allMediaResult: AllMedia | null = null;
-  let quotedTweetDetails: TweetDetails | null | undefined = null;
+  let quotedTweetDetails: SocialMediaDetails | null | undefined = null;
 
   if (articleElement) {
     // Username: Look for the link within the User-Name group that is a direct link to the user profile
@@ -217,11 +186,12 @@ export async function extractTweetDetailsFromElement(div: HTMLElement): Promise<
   }
 
   return {
+    platform: 'X/Twitter',
     username,
     displayName,
-    tweetContent,
+    content: tweetContent,
     allMedia: allMediaResult,
     isAd,
-    quotedTweet: quotedTweetDetails
+    quoted: quotedTweetDetails
   };
 }

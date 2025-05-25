@@ -1,23 +1,11 @@
 // --- Interfaces ---
-import type { ImageMedia, VideoMedia, AllMedia } from "./twitter_extract";
-
-export interface RedditDetails {
-    author: string | null;
-    title?: string | null; // Optional title for posts
-    content: string | null;
-    allMedia?: AllMedia | null;
-    permalink: string | null;
-    isPost: boolean;
-}
+import type { ImageMedia, VideoMedia, AllMedia, SocialMediaDetails } from "./social_media_interfaces";
 
 // --- Extraction Logic ---
 
-export function extractRedditDetailsFromElement(element: HTMLElement): RedditDetails {
+export function extractRedditDetailsFromElement(element: HTMLElement): SocialMediaDetails {
     // Autor extrahieren
-    const author = element.getAttribute('author') || null;
-
-    // Permalink extrahieren
-    const permalink = element.getAttribute('permalink') || null;
+    const username = element.getAttribute('author') || null;
 
     // Post oder Kommentar?
     const isPost = element.tagName.toLowerCase() === 'shreddit-post';
@@ -25,6 +13,7 @@ export function extractRedditDetailsFromElement(element: HTMLElement): RedditDet
     // Text extrahieren
     let title: string | null = null;
     let content: string | null = null;
+    let quoted: SocialMediaDetails | null = null;
     if (isPost) {
         // Titel extrahieren
         title = element.getAttribute('post-title') || '';
@@ -76,6 +65,75 @@ export function extractRedditDetailsFromElement(element: HTMLElement): RedditDet
         const commentContent = element.querySelector('[slot="comment"]');
         if (commentContent) {
             content = commentContent.textContent?.trim() || null;
+        }
+
+        // Parent-Kommentar extrahieren (quoted)
+        const parentId = element.getAttribute('parentid');
+        if (parentId && parentId.startsWith('t1_')) {
+            // Suche nach dem Parent-Kommentar im DOM
+            const parentComment = document.querySelector(`shreddit-comment[thingid="${parentId}"]`) as HTMLElement | null;
+            if (parentComment) {
+                // Autor extrahieren
+                const parentUsername = parentComment.getAttribute('author') || null;
+                // Inhalt extrahieren
+                const parentCommentContent = parentComment.querySelector('[slot="comment"]');
+                const parentContent = parentCommentContent?.textContent?.trim() || null;
+                // Bilder/Videos extrahieren (optional)
+                const parentImages: ImageMedia[] = [];
+                parentComment.querySelectorAll('img').forEach((img) => {
+                    const src = img.src;
+                    if (
+                        !src ||
+                        src.startsWith('data:') ||
+                        src.includes('emoji') ||
+                        src.includes('avatar') ||
+                        src.includes('awards') ||
+                        src.includes('award') ||
+                        src.includes('icon') ||
+                        src.includes('faceplate') ||
+                        src.includes('sprites') ||
+                        src.includes('profileBadge') ||
+                        src.includes('bannerBackgroundImage') ||
+                        src.includes('communityIcon') ||
+                        img.closest('[slot="commentAvatar"]') ||
+                        img.closest('[slot="commentMeta"]') ||
+                        img.closest('button') ||
+                        img.width < 40
+                    ) {
+                        return;
+                    }
+                    parentImages.push({
+                        type: 'image',
+                        url: src,
+                        alt: img.alt || '',
+                        position: parentImages.length + 1,
+                    });
+                });
+                const parentVideos: VideoMedia[] = [];
+                parentComment.querySelectorAll('video').forEach((video) => {
+                    parentVideos.push({
+                        type: 'video',
+                        poster: video.poster || null,
+                        duration: video.duration ? video.duration.toString() : null,
+                        hasVideo: true,
+                        note: 'Reddit video',
+                    });
+                });
+
+                quoted = {
+                    platform: 'Reddit',
+                    username: parentUsername,
+                    displayName: null,
+                    content: parentContent,
+                    allMedia: {
+                        images: parentImages,
+                        videos: parentVideos,
+                        hasMedia: parentImages.length > 0 || parentVideos.length > 0,
+                    },
+                    isAd: false,
+                    quoted: null,
+                };
+            }
         }
     }
 
@@ -131,15 +189,16 @@ export function extractRedditDetailsFromElement(element: HTMLElement): RedditDet
     });
 
     return {
-        author,
-        title,
-        content,
+        platform: 'Reddit',
+        username,
+        displayName: null,
+        content: (title ? title : '') + (content ? `\n\n${content}` : ''),
         allMedia: {
             images,
             videos,
             hasMedia: images.length > 0 || videos.length > 0,
         },
-        permalink,
-        isPost,
+        isAd: false,
+        quoted: quoted,
     };
 }

@@ -1,37 +1,38 @@
 <script lang="ts">
   import "../../app.css";
-  import { onMount } from "svelte";
   import { extractYoutubeCommentDetailsFromElement } from "@/lib/youtube_comment_extract";
+  import type { SocialMediaDetails } from "./social_media_interfaces";
   import FactDisplay from "./FactDisplay.svelte";
   import { FactState, fromVerdict } from "@/util/fact_state";
   import { getFactCheckService } from "../proxyservice/factcheck";
-  import { Err } from "neverthrow";
   import { scale } from "svelte/transition";
+  import CheckInformation from "./CheckInformation.svelte";
+  import { FactCheckResult } from "../api";
 
   let hostElement: HTMLElement | null = null;
-  let extractedDetails: any = null;
-  let isLoading = false;
-  let error: string | null = null;
-  let factState = FactState.NONE;
+  let extractedDetails = $state<SocialMediaDetails | null>(null);
+  let isLoading = $state(false);
+  let error = $state<string | null>(null);
+  let factState = $state(FactState.NONE);
+  let showInfo = $state(false);
+  let response = $state<FactCheckResult | null>(null);
 
   function findCommentRoot(el: HTMLElement | null): HTMLElement | null {
-    while (el) {
-      if (
-        el.tagName?.toLowerCase() === "ytd-comment-thread-renderer" ||
-        el.tagName?.toLowerCase() === "ytd-comment-renderer"
-      ) {
-        return el;
-      }
-      el = el.parentElement;
+  while (el) {
+    if (el.tagName?.toLowerCase() === "ytd-comment-view-model" ||
+        el.tagName?.toLowerCase() === "ytd-comment-renderer") {
+      return el;
     }
-    return null;
+    el = el.parentElement;
   }
+  return null;
+}
 
   async function handleClick() {
     if (factState !== FactState.NONE) {
       console.log(
         "Fact Check button clicked, but already in a state:",
-        factState
+        factState,
       );
       return;
     }
@@ -48,14 +49,11 @@
       if (!commentRoot) throw new Error("Kein comment-root gefunden!");
 
       extractedDetails = extractYoutubeCommentDetailsFromElement(commentRoot);
-
-      if (!extractedDetails || !extractedDetails.content) {
-        throw new Error("Keine Reddit-Postdetails gefunden.");
-      }
+      console.log("Extracted YouTube comment details:", extractedDetails);
     } catch (e: any) {
       console.error(
         "Error extracting reddit post details in Svelte component:",
-        e
+        e,
       );
       error = e.message || "Failed to extract reddit post details.";
       isLoading = false;
@@ -64,24 +62,44 @@
       isLoading = false;
     }
 
+    if (error) {
+      console.log("Fact Check button clicked, but there was an error:", error);
+      alert(`Error: ${error}`);
+      return;
+    }
+    if (!extractedDetails) {
+      console.log("Fact Check button clicked, but no details were extracted.");
+      alert("Could not extract details.");
+      return;
+    }
+
+    if (!extractedDetails.username && !extractedDetails.content) {
+      console.warn("No content to fact-check.");
+      alert("No content to fact-check.");
+      return;
+    }
+
     factState = FactState.LOADING;
-
-    const res = await getFactCheckService().factcheck_comment(
-      extractedDetails.content
-    );
-
-    if (res instanceof Err) {
-      console.error("Fact check error:", res.error);
-      error = res.error;
+    try {
+      const res =
+        await getFactCheckService().factcheck_comment(extractedDetails);
+      console.log("Fact check response:", res);
+      response = res;
+      factState = fromVerdict(res.verdict);
+    } catch {
+      console.error("Error calling fact check service:", error);
       factState = FactState.NONE;
       return;
-    } else {
-      factState = fromVerdict(res.value.verdict);
     }
   }
 
   async function handleFactDisplayClick() {
     if (factState === FactState.NONE) handleClick();
+    else if (factState === FactState.LOADING) {
+      console.log("Fact check is still loading, please wait.");
+    } else {
+      showInfo = !showInfo; // Toggle the display of additional info
+    }
   }
 </script>
 
@@ -103,6 +121,16 @@
   />
 </button>
 
+{#if showInfo && response !== null}
+    <CheckInformation
+        {response}
+        classes="absolute top-12 right-4"
+        state={factState}
+        zindex={10000000}
+    />
+{/if}
+
+
 <style lang="postcss">
   :root {
     --color-primary-500: oklch(55.6% 0 0deg);
@@ -115,7 +143,7 @@
     color: gray;
     border-radius: 9999rem;
     padding: 1.2rem 1.2rem;
-    font-size: 1.1rem;
+    font-size: 1.2rem;
     font-weight: 400;
     text-align: center;
     text-decoration: none;

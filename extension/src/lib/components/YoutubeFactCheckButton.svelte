@@ -2,17 +2,21 @@
   import "../../app.css";
   import { onMount } from "svelte";
   import { extractYoutubeVideoDetailsFromDocument } from "@/lib/youtube_extract";
+  import type { YoutubeVideoDetails } from "./social_media_interfaces";
   import FactDisplay from "./FactDisplay.svelte";
   import { FactState, fromVerdict } from "@/util/fact_state";
   import { getFactCheckService } from "../proxyservice/factcheck";
-  import { Err } from "neverthrow";
   import { scale } from "svelte/transition";
+  import CheckInformation from "./CheckInformation.svelte";
+  import { FactCheckResult } from "../api";
 
   let hostElement: HTMLElement | null = null;
-  let extractedDetails: any = null;
-  let isLoading = false;
-  let error: string | null = null;
-  let factState = FactState.NONE;
+  let extractedDetails = $state<YoutubeVideoDetails | null>(null);
+  let isLoading = $state(false);
+  let error = $state<string | null>(null);
+  let factState = $state(FactState.NONE);
+  let showInfo = $state(false);
+  let response = $state<FactCheckResult | null>(null);
 
   async function handleClick() {
     if (factState !== FactState.NONE) {
@@ -33,15 +37,8 @@
     try {
       extractedDetails = await extractYoutubeVideoDetailsFromDocument();
       console.log("Extracted details:", extractedDetails);
-
-      if (!extractedDetails || !extractedDetails.title) {
-        throw new Error("Keine Youtube-Details gefunden.");
-      }
     } catch (e: any) {
-      console.error(
-        "Error extracting reddit post details in Svelte component:",
-        e,
-      );
+      console.error("Error extracting details in Svelte component:", e);
       error = e.message || "Failed to extract reddit post details.";
       isLoading = false;
       return;
@@ -49,24 +46,44 @@
       isLoading = false;
     }
 
+    if (error) {
+      console.log("Fact Check button clicked, but there was an error:", error);
+      alert(`Error: ${error}`);
+      return;
+    }
+    if (!extractedDetails) {
+      console.log("Fact Check button clicked, but no details were extracted.");
+      alert("Could not extract details.");
+      return;
+    }
+
+    if (!extractedDetails.username && !extractedDetails.content) {
+      console.warn("No content to fact-check.");
+      alert("No content to fact-check.");
+      return;
+    }
+
     factState = FactState.LOADING;
-
-    const res = await getFactCheckService().factcheck_comment(
-      extractedDetails.content,
-    );
-
-    if (res instanceof Err) {
-      console.error("Fact check error:", res.error);
-      error = res.error;
+    try {
+      const res =
+        await getFactCheckService().factcheck_comment(extractedDetails);
+      console.log("Fact check response:", res);
+      response = res;
+      factState = fromVerdict(res.verdict);
+    } catch {
+      console.error("Error calling fact check service:", error);
       factState = FactState.NONE;
       return;
-    } else {
-      factState = fromVerdict(res.value.verdict);
     }
   }
 
   async function handleFactDisplayClick() {
     if (factState === FactState.NONE) handleClick();
+    else if (factState === FactState.LOADING) {
+      console.log("Fact check is still loading, please wait.");
+    } else {
+      showInfo = !showInfo; // Toggle the display of additional info
+    }
   }
 </script>
 
@@ -100,7 +117,7 @@
     color: gray;
     border-radius: 9999rem;
     padding: 1.2rem 1.2rem;
-    font-size: 1.1rem;
+    font-size: 1.2rem;
     font-weight: 400;
     text-align: center;
     text-decoration: none;

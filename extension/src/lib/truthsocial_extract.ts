@@ -1,21 +1,5 @@
-import type { AllMedia } from "./twitter_extract";
+import type { AllMedia, SocialMediaDetails } from "./social_media_interfaces";
 
-export interface QuotedTruthsocialPost {
-    author: string | null;
-    authorUrl: string | null;
-    content: string | null;
-    allMedia?: AllMedia | null;
-}
-
-export interface TruthsocialPostDetails {
-    type: 'post' | 'comment';
-    author: string | null;
-    authorUrl: string | null;
-    content: string | null;
-    url: string | null;
-    allMedia?: AllMedia | null;
-    quotedPost?: QuotedTruthsocialPost | null;
-}
 
 function extractAllMedia(element: HTMLElement): AllMedia {
     const images = Array.from(element.querySelectorAll('img')).filter(img => {
@@ -56,31 +40,25 @@ function extractAllMedia(element: HTMLElement): AllMedia {
     };
 }
 
-function extractQuotedPost(element: HTMLElement): QuotedTruthsocialPost | null {
+function extractDisplayNameAndUsername(element: HTMLElement): { displayName: string | null, username: string | null } {
+    // Display Name: <p class="font-semibold ...">
+    const displayNameElem = element.querySelector('p.font-semibold');
+    const displayName = displayNameElem?.textContent?.trim() || null;
+
+    // Username: <p class="font-normal ...">@username</p>
+    const usernameElem = Array.from(element.querySelectorAll('p.font-normal'))
+        .find(p => p.textContent?.trim().startsWith('@'));
+    const username = usernameElem?.textContent?.trim() || null;
+
+    return { displayName, username };
+}
+
+function extractQuotedPost(element: HTMLElement): SocialMediaDetails | null {
     const quoted = element.querySelector('[data-testid="quoted-status"]');
     if (!quoted) return null;
 
     // Autor
-    let author: string | null = null;
-    let authorUrl: string | null = null;
-    const authorLink = quoted.querySelector('a[href^="/@"]');
-    if (authorLink instanceof HTMLAnchorElement) {
-        authorUrl = authorLink.href;
-        const usernameSpan = authorLink.querySelector('span[data-testid="account-username"]');
-        if (usernameSpan) {
-            author = usernameSpan.textContent?.trim() || null;
-        }
-    }
-    if (!author) {
-        const handleP = Array.from(quoted.querySelectorAll('p'))
-            .find(p => p.textContent?.trim().startsWith('@'));
-        if (handleP) {
-            author = handleP.textContent?.trim() || null;
-        }
-    }
-    if (!author && authorLink) {
-        author = authorLink.textContent?.trim() || null;
-    }
+    const { displayName, username } = extractDisplayNameAndUsername(quoted);
 
     // Content
     let contentElem = quoted.querySelector('p[data-markup="true"]');
@@ -91,50 +69,17 @@ function extractQuotedPost(element: HTMLElement): QuotedTruthsocialPost | null {
     const content = contentElem?.textContent?.trim() || null;
 
     // Medien
-    const allMedia = extractAllMedia(quoted);
+    const allMedia = extractAllMedia(element);
 
-    return { author, authorUrl, content, allMedia };
+    return { platform: 'Truth Social', username, displayName, content, allMedia, isAd: false, quoted: null };
 }
 
-export function extractTruthsocialDetails(element: HTMLElement): TruthsocialPostDetails {
+export function extractTruthsocialDetails(element: HTMLElement): SocialMediaDetails {
     // ID
     const dataId = element.getAttribute('data-id') || null;
 
     // Autor
-    let author: string | null = null;
-    let authorUrl: string | null = null;
-    const authorLink = element.querySelector('a[href^="/@"]');
-    if (authorLink instanceof HTMLAnchorElement) {
-        authorUrl = authorLink.href;
-        // 1. Versuche, das Username-Span zu finden
-        const usernameSpan = authorLink.querySelector('span[data-testid="account-username"]');
-        if (usernameSpan) {
-            author = usernameSpan.textContent?.trim() || null;
-        }
-    }
-    // 2. Suche nach <p>, das mit @ beginnt (Handle)
-    if (!author) {
-        const handleP = Array.from(element.querySelectorAll('p'))
-            .find(p => p.textContent?.trim().startsWith('@'));
-        if (handleP) {
-            author = handleP.textContent?.trim() || null;
-        }
-    }
-    // 3. Wenn author noch leer, suche nach <p class="font-semibold ...">
-    if (!author) {
-        const nameP = element.querySelector('p.font-semibold');
-        if (nameP) {
-            author = nameP.textContent?.trim() || null;
-        }
-    }
-    // 4. Fallback: Linktext, falls dort doch mal der Name steht
-    if (!author && authorLink) {
-        author = authorLink.textContent?.trim() || null;
-    }
-    // 5. "Posted by" entfernen, falls vorhanden
-    if (author) {
-        author = author.replace(/^Posted by\s*/i, '').trim();
-    }
+    const { displayName, username } = extractDisplayNameAndUsername(element);
 
     // URL
     let contentElem = element.querySelector('p[data-markup="true"]');
@@ -156,50 +101,15 @@ export function extractTruthsocialDetails(element: HTMLElement): TruthsocialPost
     const allMedia = extractAllMedia(element);
 
     //Quoted Post
-    const quotedPost = extractQuotedPost(element);
+    const quoted = extractQuotedPost(element);
 
-    // Ein Kommentar ist ein status__wrapper[data-id] mit status-reply
-    const isComment =
-        element.classList.contains('status__wrapper') &&
-        element.classList.contains('status-reply') &&
-        element.hasAttribute('data-id');
-
-    // Ein Post ist ein status__wrapper[data-id] OHNE status-reply oder ein .detailed-actualStatus
-    const isPost =
-        (element.classList.contains('status__wrapper') &&
-            element.hasAttribute('data-id') &&
-            !element.classList.contains('status-reply')) ||
-        element.classList.contains('detailed-actualStatus');
-
-    if (isPost) {
-        return {
-            type: 'post',
-            author,
-            authorUrl,
-            content,
-            url,
-            allMedia,
-            quotedPost,
-        };
-    } else if (isComment) {
-        return {
-            type: 'comment',
-            author,
-            authorUrl,
-            content,
-            url,
-            allMedia,
-            quotedPost,
-        };
-    } else {
-        return {
-            type: 'post',
-            author,
-            authorUrl,
-            content,
-            url,
-            allMedia,
-            quotedPost,
-        };
-    }
+    return {
+        platform: 'Truth Social',
+        username,
+        displayName,
+        content,
+        allMedia,
+        isAd: false,
+        quoted
+    };
 }

@@ -70,6 +70,13 @@ export default defineContentScript({
                     addFactCheckButtonToComment(comment);
                 }
             });
+
+            // Antwort-Kommentare (Replies)
+            document.querySelectorAll('ytd-comment-view-model[is-reply], ytd-comment-renderer[is-reply]').forEach(reply => {
+                if (reply instanceof HTMLElement) {
+                    addFactCheckButtonToComment(reply);
+                }
+            });
         };
 
         // Initial run
@@ -100,6 +107,16 @@ export default defineContentScript({
                             element.querySelectorAll('ytd-comment-thread-renderer').forEach(commentDiv => {
                                 if (commentDiv instanceof HTMLElement) {
                                     addFactCheckButtonToComment(commentDiv);
+                                }
+                            });
+
+                            // Antwort-Kommentare (Replies)
+                            if (element.matches('ytd-comment-view-model[is-reply], ytd-comment-renderer[is-reply]')) {
+                                addFactCheckButtonToComment(element);
+                            }
+                            element.querySelectorAll('ytd-comment-view-model[is-reply], ytd-comment-renderer[is-reply]').forEach(replyDiv => {
+                                if (replyDiv instanceof HTMLElement) {
+                                    addFactCheckButtonToComment(replyDiv);
                                 }
                             });
                         }
