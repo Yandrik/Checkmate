@@ -7,7 +7,6 @@ from models import (
   SocialMediaDetailsRequest,
   MediaDetailsRequest,
   MediaCommentDetailsRequest)
-import asyncio
 from ai_agent import Agent
 
 agent = Agent()

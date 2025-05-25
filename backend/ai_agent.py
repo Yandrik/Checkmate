@@ -90,7 +90,7 @@ class Agent:
         :return: FactCheckResult containing the verdict and sources.
         """
         messages = [
-            {'role': 'user', 'content': f'Fact-check this website: {search_req.url} with content: {search_req.content} \no_think'}
+            {'role': 'user', 'content': f'Fact-check this website: {search_req.url} with content: {search_req.content} /no_think'}
         ]
         response = self.ai_run(messages)
         return response
