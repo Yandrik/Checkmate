@@ -17,6 +17,8 @@ services:
       JUPYTER_TOKEN: easy
       TZ: Europe/Berlin
     tty: true
+    ports:
+      - 8000:8000
   test-build:
     build:
       context: ../backend
