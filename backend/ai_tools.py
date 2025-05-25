@@ -11,8 +11,96 @@ from search import search
 from models import AiSettings  
 settings = AiSettings()  # type: ignore
 
+@register_tool("web_search_2")
+class WebSearch(BaseTool):
+    """
+    A tool that performs a web search.
+    Give the tool a query, and it will return the top results.
+    """
+
+    description = "A tool that performs a web search. Give the tool a query, and it will return the top results."
+    
+    parameters = [
+        {
+            "name": "query",
+            "type": "string",
+            "description": "The search query to perform",
+            "required": True,
+        },
+        {
+            "name": "num_results",
+            "type": "integer",
+            "description": "Number of search results to return",
+            "required": False,
+        },
+    ]
+
+    def call(self, params: str, **kwargs) -> str:  # type: ignore
+        """
+        Call the web search tool with the provided parameters.
+        :param params: JSON string containing the parameters for the tool.
+        :return: JSON string with the search results.
+        """
+        data = json5.loads(params)
+        if not isinstance(data, dict) or "query" not in data:
+            raise ValueError("Invalid params: expected a dict with a 'query' key")
+        
+        query = urllib.parse.quote(data["query"])
+        num_results = data.get("num_results", 5)
+        
+        search_result = search(query=query, num_results=num_results)
+        if isinstance(search_result, Ok):
+            return search_result.ok_value
+        else:
+            return 'Error: Web Search failed! Please do not try to use this tool at the moment. It is not available.'
 
 
+@register_tool("trusted_web_search")
+class TrustedWebSearch(BaseTool):
+    """
+    A tool that performs a web search on exclusively trusted sources.
+    Give the tool a query, and it will return the top results.
+    """
+
+    description = "A tool that performs a web search on exclusively trusted sources. Give the tool a query, and it will return the top results."
+
+    parameters = [
+        {
+            "name": "query",
+            "type": "string",
+            "description": "The search query to perform",
+            "required": True,
+        },
+        {
+            "name": "num_results",
+            "type": "integer",
+            "description": "Number of search results to return",
+            "required": False,
+        },
+    ]
+
+    def call(self, params: str, **kwargs) -> str:  # type: ignore
+        """
+        Call the web search tool with the provided parameters.
+        :param params: JSON string containing the parameters for the tool.
+        :return: JSON string with the search results.
+        """
+        data = json5.loads(params)
+        if not isinstance(data, dict) or "query" not in data:
+            raise ValueError("Invalid params: expected a dict with a 'query' key")
+        
+        query = urllib.parse.quote(data["query"])
+        num_results = data.get("num_results", 5)
+        
+        search_result = search(query=query, num_results=num_results)  # type: ignore
+        
+        # make search to string
+        
+        if isinstance(search_result, Ok):
+            return search_result.ok_value
+        else:
+            return 'Error: Web Search failed! Please do not try to use this tool at the moment. It is not available.'
+            
 
 @register_tool("fact_check")
 class FactChecker(BaseTool):
@@ -56,7 +144,7 @@ class FactChecker(BaseTool):
         if isinstance(search_result, Ok):
             try:
                 result = completion(
-                    model= 'openrouter/' + settings.model,
+                    model= settings.litellm_model,
                     messages=[
                         {
                             "role": "system",
@@ -64,11 +152,11 @@ class FactChecker(BaseTool):
                         },
                         {
                             "role": "user",
-                            "content": f"Factoid: \"{prompt}\"\n\n=== Web Search (Query: \"{search_query}\")===\n{search_result.ok_value}\n\nPlease fact-check the above factoid based on the web search results. Provide a JSON response based on the Answer schema.",
+                            "content": f"Factoid: \"{prompt}\"\n\n=== Web Search (Query: \"{search_query}\")===\n{search_result.ok_value}\n\nPlease fact-check the above factoid based on the web search results. Provide a JSON response based on the Answer schema. /no_think",
                         },
                     ],
                     max_tokens=1000,
-                    api_key=settings.api_key.get_secret_value(),  # type: ignore
+                    api_key=settings.litellm_api_key.get_secret_value(),  # type: ignore
                     # base_url=settings.model_server.__str__(),  # type: ignore
                     
                 )

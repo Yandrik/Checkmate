@@ -16,7 +16,7 @@ from models import (
     MediaDetailsRequest,
     MediaCommentDetailsRequest,
     FactCheckDetailsRequest)
-from prompts import DISPATCHER_SYSTEM_PROMPT
+from prompts import DISPATCHER_SYSTEM_PROMPT, SIMPLE_FACTCHECKER_SYSTEM_PROMPT
 
 class Agent:
     def __init__(self) -> None:
@@ -35,8 +35,11 @@ class Agent:
             example_txt = f.read()
         with open(f"{cwd}/sources.txt", "r") as f:
             sources_txt = f.read()
-        system_instruction = DISPATCHER_SYSTEM_PROMPT
-        tools = ['fact_check']
+        # system_instruction = DISPATCHER_SYSTEM_PROMPT
+        system_instruction = SIMPLE_FACTCHECKER_SYSTEM_PROMPT
+        tools = ['web_search']
+
+        # tools = ['fact_check']
         # tools: list[str | dict | BaseTool] = [{
         # "mcpServers": {
         #     "websearch" : {

@@ -17,6 +17,8 @@ class AiSettings(BaseSettings):
   model: str
   model_server: HttpUrl
   model_type: str
+  litellm_model: str
+  litellm_api_key: Secret[str]
   model_config = SettingsConfigDict(env_prefix='AI_')
 
 class FactCheckDetailsRequest(BaseModel):
