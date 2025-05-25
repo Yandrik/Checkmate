@@ -3,7 +3,7 @@ import { FactCheckDetailsRequest } from "@/lib/api/models/FactCheckDetailsReques
 
 interface ProtocolMap {
   // getStringLength(data: string): number;
-  getPageContent(): PageContent,
+  getPageContent(): FactCheckDetailsRequest | null,
   // Get the currently active tab's ID, or -1 if not available
   getCurrentTabId(): number,
 }

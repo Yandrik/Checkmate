@@ -1,5 +1,5 @@
 import { defineProxyService } from "@webext-core/proxy-service";
-import { ok, err, Result, Ok } from "neverthrow";
+import { ok, err, Result, Ok, Err } from "neverthrow";
 import { sendMessage } from "../messaging";
 import { getBackendClient } from "./backend";
 import { FactCheckResult } from "../api";
@@ -16,13 +16,13 @@ function createApiRepo() {
 
 
     return {
-        async factcheck_whole_page(tabId: number): Promise<Result<FactCheckResult, Error>> {
+        async factcheck_whole_page(tabId: number): Promise<FactCheckResult | string> {
             const factCheckDbEntry = await factcheckDb.getUrlFactCheck(tabId.toString());
             if (factCheckDbEntry instanceof Ok && factCheckDbEntry.value) {
                 if (factCheckDbEntry.value.state === FactCheckState.DONE) {
-                    return ok(factCheckDbEntry.value!.result!);
+                    return factCheckDbEntry.value!.result!;
                 } else if (factCheckDbEntry.value!.state === FactCheckState.PENDING) {
-                    return err(new Error("Fact-check is still pending"));
+                    return "Fact-check is still pending";
                 }
             }
 
@@ -30,18 +30,22 @@ function createApiRepo() {
 
             const content = await sendMessage("getPageContent", undefined, tabId);
             if (content) {
+                console.log(content);
                 const result = await backendClient.factcheck(content);
+                console.log(result);
 
-                if (result.isOk()) {
-                    await factcheckDb.setUrlFactCheck(tabId.toString(), FactCheckState.DONE, new Date(), result.value);
-                    return ok(result.value);
+                if (typeof result === "object" && result !== null) {
+                    await factcheckDb.setUrlFactCheck(tabId.toString(), FactCheckState.DONE, new Date(), result);
+                    return result;
                 } else {
                     await factcheckDb.setUrlFactCheck(tabId.toString(), FactCheckState.FAILED, new Date());
-                    return err(new Error("Failed to perform fact-check", { cause: result.error }));
+                    console.warn(err(new Error("Failed to perform fact-check", { cause: result })));
+                    return "Failed to perform fact-check";
                 }
             }
             await factcheckDb.setUrlFactCheck(tabId.toString(), FactCheckState.FAILED, new Date());
-            return err(new Error("Failed to retrieve content"));
+            console.warn("Failed to retrieve content for fact-checking");
+            return "Failed to retrieve content";
         },
         async factcheck_section(title: string, url: string, text: string, tabId: number): Promise<Result<FactCheckResult, Error>> {
             const content: FactCheckDetailsRequest = {
@@ -61,12 +65,12 @@ function createApiRepo() {
             if (content) {
                 const result = await backendClient.factcheck(content);
 
-                if (result.isOk()) {
-                    await factcheckDb.setUrlFactCheck(tabId.toString(), FactCheckState.DONE, new Date(), result.value);
-                    return ok(result.value);
+                if (typeof result === "object" && result !== null) {
+                    await factcheckDb.setUrlFactCheck(tabId.toString(), FactCheckState.DONE, new Date(), result);
+                    return ok(result);
                 } else {
                     await factcheckDb.setUrlFactCheck(tabId.toString(), FactCheckState.FAILED, new Date());
-                    return err(new Error("Failed to perform fact-check", { cause: result.error }));
+                    return err(new Error("Failed to perform fact-check", { cause: result }));
                 }
             }
             await factcheckDb.setUrlFactCheck(tabId.toString(), FactCheckState.FAILED, new Date());
