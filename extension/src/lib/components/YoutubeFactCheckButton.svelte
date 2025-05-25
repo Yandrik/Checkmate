@@ -2,7 +2,7 @@
   import "../../app.css";
   import { onMount } from "svelte";
   import { extractYoutubeVideoDetailsFromDocument } from "@/lib/youtube_extract";
-  import type { YoutubeVideoDetails } from "./social_media_interfaces";
+  import type { MediaDetailsRequest } from "@/lib/api/models/MediaDetailsRequest";
   import FactDisplay from "./FactDisplay.svelte";
   import { FactState, fromVerdict } from "@/util/fact_state";
   import { getFactCheckService } from "../proxyservice/factcheck";
@@ -11,7 +11,7 @@
   import { FactCheckResult } from "../api";
 
   let hostElement: HTMLElement | null = null;
-  let extractedDetails = $state<YoutubeVideoDetails | null>(null);
+  let extractedDetails = $state<MediaDetailsRequest | null>(null);
   let isLoading = $state(false);
   let error = $state<string | null>(null);
   let factState = $state(FactState.NONE);
@@ -57,7 +57,7 @@
       return;
     }
 
-    if (!extractedDetails.username && !extractedDetails.content) {
+    if (!extractedDetails.channel && !extractedDetails.transcription_close_to_timestamp) {
       console.warn("No content to fact-check.");
       alert("No content to fact-check.");
       return;
@@ -66,7 +66,7 @@
     factState = FactState.LOADING;
     try {
       const res =
-        await getFactCheckService().factcheck_comment(extractedDetails);
+        await getFactCheckService().factcheck_video(extractedDetails);
       console.log("Fact check response:", res);
       response = res;
       factState = fromVerdict(res.verdict);
