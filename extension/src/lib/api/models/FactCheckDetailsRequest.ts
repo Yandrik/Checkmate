@@ -6,6 +6,6 @@ export type FactCheckDetailsRequest = {
     title: string;
     url: string;
     content: string;
-    html: string;
+    html?: (string | null);
 };
 

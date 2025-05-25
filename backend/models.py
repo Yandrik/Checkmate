@@ -25,7 +25,7 @@ class FactCheckDetailsRequest(BaseModel):
   title: str
   url: str
   content: str
-  html: str
+  html: Optional[str]
 
 @dataclass
 class ImageMediaRequest:

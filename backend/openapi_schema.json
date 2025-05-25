@@ -422,13 +422,19 @@
                         "type": "string"
                     },
                     "html": {
-                        "type": "string"
+                        "oneOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
                     }
                 },
                 "type": "object",
                 "required": [
                     "content",
-                    "html",
                     "title",
                     "url"
                 ],

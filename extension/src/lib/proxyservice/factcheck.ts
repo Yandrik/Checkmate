@@ -5,7 +5,7 @@ import { getBackendClient } from "./backend";
 import { FactCheckResult } from "../api";
 import { FactCheckState, getFactCheckDbService } from "./factcheck_db";
 import { TweetDetails } from "../twitter_extract";
-
+import { PageContent } from "../messaging";
 
 function createApiRepo() {
 
@@ -18,9 +18,9 @@ function createApiRepo() {
         async factcheck_whole_page(tabId: number): Promise<Result<FactCheckResult, Error>> {
             const factCheckDbEntry = await factcheckDb.getUrlFactCheck(tabId.toString());
             if (factCheckDbEntry instanceof Ok) {
-                if (factCheckDbEntry.value!.state === FactCheckState.DONE) {
-                    return ok(factCheckDbEntry.value!.result!);
-                } else if (factCheckDbEntry.value!.state === FactCheckState.PENDING) {
+                if (factCheckDbEntry?.value!.state === FactCheckState.DONE) {
+                    return ok(factCheckDbEntry?.value!.result!);
+                } else if (factCheckDbEntry?.value!.state === FactCheckState.PENDING) {
                     return err(new Error("Fact-check is still pending"));
                 }
             }
@@ -29,12 +29,7 @@ function createApiRepo() {
             
             const content = await sendMessage("getPageContent", undefined, tabId);
             if (content) {
-                const result = await backendClient.factcheck(
-                    content.title,
-                    content.url,
-                    content.text,
-                    content.html
-                );
+                const result = await backendClient.factcheck(content);
 
                 if (result.isOk()) {
                     await factcheckDb.setUrlFactCheck(tabId.toString(), FactCheckState.DONE, new Date(), result.value);
@@ -47,7 +42,35 @@ function createApiRepo() {
             await factcheckDb.setUrlFactCheck(tabId.toString(), FactCheckState.FAILED, new Date());
             return err(new Error("Failed to retrieve content"));
         },
-
+        async factcheck_section(title: string,url: string,text: string,tabId:number) : Promise<Result<FactCheckResult, Error>> {
+            const content: PageContent = {
+                  title: title,
+                  url: url,
+                  text: text,
+                  html:""
+                }
+            const factCheckDbEntry = await factcheckDb.getUrlFactCheck(tabId.toString());
+            if (factCheckDbEntry instanceof Ok) {
+                if (factCheckDbEntry?.value!.state === FactCheckState.DONE) {
+                    return ok(factCheckDbEntry.value!.result!);
+                } else if (factCheckDbEntry?.value!.state === FactCheckState.PENDING) {
+                    return err(new Error("Fact-check is still pending"));
+                }
+            }
+            if (content) {
+                const result = await backendClient.factcheck(content);
+                
+                if (result.isOk()) {
+                    await factcheckDb.setUrlFactCheck(tabId.toString(), FactCheckState.DONE, new Date(), result.value);
+                    return ok(result.value);
+                } else {
+                    await factcheckDb.setUrlFactCheck(tabId.toString(), FactCheckState.FAILED, new Date());
+                    return err(new Error("Failed to perform fact-check", { cause: result.error }));
+                }
+            }
+            await factcheckDb.setUrlFactCheck(tabId.toString(), FactCheckState.FAILED, new Date());
+            return err(new Error("Failed to retrieve content"));
+        },
         async factcheck_comment(comment: TweetDetails): Promise<FactCheckResult> {
             // await new Promise(resolve => setTimeout(resolve, 5000));
             try {
