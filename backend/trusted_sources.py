@@ -26,6 +26,12 @@ TRUSTED_SOURCES_NEWS = [
 
 TRUSTED_SOURCES_POLITICS = [
   {"name": "Politifact", "url": "https://www.politifact.com/"},
+  {"name": "BBC", "url": "https://www.bbc.com/"},
+  {"name": "Tagesschau", "url": "https://www.tagesschau.de/"},
+  {"name": "Reuters", "url": "https://www.reuters.com/"},
+  {"name": "Associated Press", "url": "https://apnews.com/"},
+  {"name": "Al Jazeera", "url": "https://www.aljazeera.com/"},
+  {"name": "Deutsche Welle", "url": "https://www.dw.com/"},
 ]
 
 TRUSTED_SOURCES_SCIENCE = [
@@ -90,6 +96,7 @@ class TrustedSourceType(enum.Enum):
     SCIENCE = "science"
     WORDS = "words"
     SOMEWHAT_TRUSTWORTHY = "somewhat_trustworthy"
+    GENERIC_UNTRUSTED = "generic_untrusted"
   
   
 
@@ -121,5 +128,7 @@ def build_url(source_type: TrustedSourceType) -> str:
         return " OR ".join([f'site:{x["url"]}' for x in TRUSTED_SOURCES_WORDS])
     elif source_type == TrustedSourceType.SOMEWHAT_TRUSTWORTHY:
         return " OR ".join([f'site:{x["url"]}' for x in SOMEWHAT_TRUSTWORTHY_SOURCES])
-    else:
+    elif source_type == TrustedSourceType.GENERIC_UNTRUSTED:
+        return ""
+    else: 
         raise ValueError("Unknown trusted source type")

@@ -47,7 +47,7 @@ class FetchWebpage(BaseTool):
         result = fetch_webpage(url=url)
 
         if isinstance(result, Ok):
-            return f'=== CONTENT of Webpage "{url}" (first 2000 words) ===\n{' '.join(result.ok_value.split(' ')[:2000])}\n==='
+            return f'=== CONTENT of Webpage "{url}" (first 2000 words) ===\n{' '.join(result.ok_value.split(' ')[:2000])}\n========'
         else:
             print(f"Fetch Webpage failed: {result.err_value}")
             return 'Error: Fetch Webpage failed! Please try a different webpage.'

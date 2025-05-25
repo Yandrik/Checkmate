@@ -31,7 +31,7 @@
 </script>
 
 <div
-  class="card {colors} min-w-48 p-2 {classes} text-sm z-[2000000]"
+  class="card {colors} min-w-48 myp-2 {classes} text-sm z-[2000000]"
   style="z-index: {zindex};"
 >
   <span class="text-center"
@@ -55,3 +55,9 @@
     {/each}
   </div>
 </div>
+
+<style>
+  .myp-2 {
+    margin: 0.5rem;
+  }
+</style>
