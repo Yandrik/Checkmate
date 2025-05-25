@@ -5,11 +5,49 @@ from qwen_agent.tools.base import BaseTool, register_tool  # type: ignore
 import json5
 from result import Ok
 from prompts import FACT_CHECK_AGENT_SYSTEM_PROMPT
-from search import search
+from search import fetch_webpage, search, serper_search
 
 
 from models import AiSettings  
 settings = AiSettings()  # type: ignore
+
+@register_tool("fetch_webpage")
+class FetchWebpage(BaseTool):
+    """
+    A tool that fetches the content of a webpage given its URL.
+    It returns the text content of the page.
+    """
+
+    description = "A tool that fetches the content of a webpage given its URL. It returns the text content of the page."
+
+    parameters = [
+        {
+            "name": "url",
+            "type": "string",
+            "description": "The URL of the webpage to fetch",
+            "required": True,
+        },
+    ]
+
+    def call(self, params: str, **kwargs) -> str:  # type: ignore
+        """
+        Call the fetch webpage tool with the provided parameters.
+        :param params: JSON string containing the parameters for the tool.
+        :return: Text content of the webpage.
+        """
+        data = json5.loads(params)
+        if not isinstance(data, dict) or "url" not in data:
+            raise ValueError("Invalid params: expected a dict with a 'url' key")
+        
+        url = data["url"]
+        
+        result = fetch_webpage(url=url)
+
+        if isinstance(result, Ok):
+            return f'=== CONTENT of Webpage "{url}" (first 2000 words) ===\n{' '.join(result.ok_value.split(' ')[:2000])}\n==='
+        else:
+            print(f"Fetch Webpage failed: {result.err_value}")
+            return 'Error: Fetch Webpage failed! Please try a different webpage.'
 
 @register_tool("web_search_2")
 class WebSearch(BaseTool):
@@ -46,13 +84,14 @@ class WebSearch(BaseTool):
             raise ValueError("Invalid params: expected a dict with a 'query' key")
         
         query = urllib.parse.quote(data["query"])
-        num_results = data.get("num_results", 5)
+        num_results = data.get("num_results", 10)
         
-        search_result = search(query=query, num_results=num_results)
+        search_result = serper_search(query=query, num_results=num_results)
         if isinstance(search_result, Ok):
             return search_result.ok_value
         else:
-            return 'Error: Web Search failed! Please do not try to use this tool at the moment. It is not available.'
+            print(f"Web Search failed: {search_result.err_value}")
+            return 'Error: Web Search failed! Please try again later.'
 
 
 @register_tool("trusted_web_search")

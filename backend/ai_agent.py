@@ -31,7 +31,7 @@ class Agent:
         }
         # system_instruction = DISPATCHER_SYSTEM_PROMPT
         system_instruction = SIMPLE_FACTCHECKER_SYSTEM_PROMPT
-        tools = ['web_search']
+        tools = ['web_search_2', 'fetch_webpage']
 
         dispatcher_system_instruction = DISPATCHER_SYSTEM_PROMPT
         dispatcher_tools = ['fact_check']
@@ -97,7 +97,7 @@ class Agent:
     
     def factcheck_social_media(self, social_med: SocialMediaDetailsRequest) -> FactCheckResult:
         messages = [
-            {'role': 'user', 'content': f'Fact-check this comment on a social media platform from user: {social_med.username} with content: {social_med.content}. Also check the credibility of the user. /no_think'}
+            {'role': 'user', 'content': f'Fact-check this comment on a social media platform from user: {social_med.username} with content: {social_med.content}. /no_think'}
         ]
         response = self.ai_run(messages)
         return response

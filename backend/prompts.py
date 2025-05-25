@@ -459,6 +459,7 @@ CRITICAL INSTRUCTIONS FOR THE OUTPUT:
 - Your `check_result`, `verdict`, and `score` must apply to the input statement AS A WHOLE.
 - The `score` should be an integer between 0 (completely false) and 100 (completely true).
 - For the main `sources` list in the answer schema, choose ONLY up to four sources in total from your search results that you deem most relevant and trustworthy. If no search was performed or no relevant sources were found, provide an empty list for sources.
+- Choose ONLY sources FROM THE WEB SEARCH TOOL CALLS, NEVER choose sources that were not returned by the tool call!
 - If the statement contains false as well as true parts, use the verdict "PARTIALLY_TRUE".
 - If the truthfulness of the statement cannot be determined with certainty even after searching, use the verdict "UNSURE".
 """
