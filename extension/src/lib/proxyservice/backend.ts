@@ -36,7 +36,14 @@ function createApiRepo() {
             } catch (error) {
                 return err(Error("Failed to perform factcheck on comment", { cause: error }));
             }
-        }
+        },
+        async factcheckText(content: string): Promise<Result<FactCheckResult, Error>> {
+            try {
+                return ok(await backendClient.default.factcheckTextHandleFactCheckText(content))
+            } catch (error) {
+                return err(Error("Failed to perform factcheck", { cause: error }));
+            }
+        },
     }
 }
 
