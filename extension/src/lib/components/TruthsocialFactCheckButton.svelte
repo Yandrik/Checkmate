@@ -123,7 +123,7 @@
     on:click|stopPropagation|preventDefault={handleClick}
     class="ztop factcheckbutton"
     style="width: {factState === FactState.NONE
-        ? '150px'
+        ? '130px'
         : '1.8rem'}; transition: width 0.3s ease; height: 1.8rem;"
 >
     {#if factState === FactState.NONE}

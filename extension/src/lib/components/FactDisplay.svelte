@@ -35,7 +35,7 @@
 </script>
 
 <button
-  class="btn btn-icon {classes} aspect-square p-1 rounded-full transition-colors hover:brightness-110 {colors} z-[100000]"
+  class="btn btn-icon {classes} aspect-square p-1 rounded-full transition-colors hover:brightness-110 {colors} z-[100000] width-24px height-24px margin-0 padding-0"
   {...rest}
 >
   {#if state === FactState.LOADING}
