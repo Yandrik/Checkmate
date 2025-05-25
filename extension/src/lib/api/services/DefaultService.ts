@@ -4,7 +4,6 @@
 /* eslint-disable */
 import type { FactCheckDetailsRequest } from '../models/FactCheckDetailsRequest';
 import type { FactCheckResult } from '../models/FactCheckResult';
-import type { MediaCommentDetailsRequest } from '../models/MediaCommentDetailsRequest';
 import type { MediaDetailsRequest } from '../models/MediaDetailsRequest';
 import type { SocialMediaDetailsRequest } from '../models/SocialMediaDetailsRequest';
 import type { CancelablePromise } from '../core/CancelablePromise';
@@ -42,25 +41,6 @@ export class DefaultService {
         return this.httpRequest.request({
             method: 'POST',
             url: '/factcheck/media',
-            body: requestBody,
-            mediaType: 'application/json',
-            errors: {
-                400: `Bad request syntax or unsupported method`,
-            },
-        });
-    }
-    /**
-     * HandleFactCheckMediaComment
-     * @param requestBody
-     * @returns FactCheckResult Document created, URL follows
-     * @throws ApiError
-     */
-    public factcheckMediaCommentHandleFactCheckMediaComment(
-        requestBody: MediaCommentDetailsRequest,
-    ): CancelablePromise<FactCheckResult> {
-        return this.httpRequest.request({
-            method: 'POST',
-            url: '/factcheck/media/comment',
             body: requestBody,
             mediaType: 'application/json',
             errors: {

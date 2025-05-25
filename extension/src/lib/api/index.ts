@@ -16,7 +16,6 @@ export type { FactCheckResult } from './models/FactCheckResult';
 export type { FactCheckSource } from './models/FactCheckSource';
 export type { Factoid } from './models/Factoid';
 export type { ImageMediaRequest } from './models/ImageMediaRequest';
-export type { MediaCommentDetailsRequest } from './models/MediaCommentDetailsRequest';
 export type { MediaDetailsRequest } from './models/MediaDetailsRequest';
 export type { SocialMediaDetailsRequest } from './models/SocialMediaDetailsRequest';
 export { Verdict } from './models/Verdict';

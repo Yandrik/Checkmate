@@ -29,6 +29,7 @@ function createApiRepo() {
 
         async factcheckComment(comment: TweetDetails): Promise<Result<FactCheckResult, Error>> {
             try {
+
                 return ok(await backendClient.default.factcheckSocialmediaHandleFactCheckSocialmedia(
                     {
                         allMedia: comment.allMedia,

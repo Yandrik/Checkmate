@@ -5,8 +5,7 @@ from models import (
   FactCheckResult,
   FactCheckDetailsRequest,
   SocialMediaDetailsRequest,
-  MediaDetailsRequest,
-  MediaCommentDetailsRequest)
+  MediaDetailsRequest)
 from ai_agent import Agent
 
 agent = Agent()
@@ -54,13 +53,4 @@ class FactcheckController(Controller):
       return agent.factcheck_media_details(data)
     except Exception as e:
       self.logger.error(f"Error processing media fact check: {e}")
-      raise e
-  
-  @post("/media/comment")
-  async def handle_fact_check_media_comment(self, data: MediaCommentDetailsRequest) -> FactCheckResult:
-    try:
-      self.logger.info(f"Received input: {data.author} -> {data.channelUrl}")
-      return agent.factcheck_media_comment(data)
-    except Exception as e:
-      self.logger.error(f"Error processing media comment fact check: {e}")
       raise e

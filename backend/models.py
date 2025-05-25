@@ -72,13 +72,6 @@ class MediaDetailsRequest:
   transcription_close_to_timestamp: str
   transcription_with_more_context: str
 
-@dataclass
-class MediaCommentDetailsRequest:
-  """Request model for yt video comment"""
-  author: str
-  channelUrl: str
-  content: str
-
 class Verdict(Enum):
   VALID = "valid"
   INVALID = "invalid"
