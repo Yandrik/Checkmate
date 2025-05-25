@@ -90,6 +90,7 @@ function createApiRepo() {
             await factcheckDb.setUrlFactCheck(tabId.toString(), FactCheckState.FAILED, new Date());
             return err(new Error("Failed to retrieve content"));
         },
+
         async factcheck_comment(comment: SocialMediaDetailsRequest): Promise<FactCheckResult> {
             // await new Promise(resolve => setTimeout(resolve, 5000));
             try {
@@ -116,6 +117,20 @@ function createApiRepo() {
                 }
             } catch (error) {
                 throw new Error("Failed to perform fact-check on video details", { cause: error });
+            }
+        },
+
+        async factcheck_text(text: string): Promise<FactCheckResult | string> {
+            try {
+                const result = await backendClient.factcheckText(text);
+                console.log(result);
+                if (result.isOk()) {
+                    return result.value;
+                } else {
+                    return "Failed to perform fact-check on text";
+                }
+            } catch (error) {
+                return "Failed to perform fact-check on text: " + error;
             }
         }
     }

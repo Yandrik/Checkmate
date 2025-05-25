@@ -29,8 +29,8 @@ class Agent:
             'model_type': settings.model_type,
         }
         # system_instruction = DISPATCHER_SYSTEM_PROMPT
-        system_instruction = SIMPLE_FACTCHECKER_SYSTEM_PROMPT
-        tools = ['trusted_web_search', 'fetch_webpage']
+        system_instruction = SIMPLE_FACTCHECKER_SYSTEM_PROMPT + ' /no_think'
+        tools = ['web_search_2', 'fetch_webpage'] # ['trusted_web_search', 'fetch_webpage']
 
         dispatcher_system_instruction = DISPATCHER_SYSTEM_PROMPT
         dispatcher_tools = ['fact_check']
