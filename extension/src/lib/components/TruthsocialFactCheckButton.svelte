@@ -114,8 +114,8 @@
         }
     }
 
-    async function handleFactDisplayClick() {
-        if (factState === FactState.NONE) handleClick();
+    async function handleFactDisplayClick(event: MouseEvent) {
+        if (factState === FactState.NONE) handleClick(event);
         else if (factState === FactState.LOADING) {
             console.log("Fact check is still loading, please wait.");
         } else {

@@ -1,6 +1,6 @@
-import type { SocialMediaDetails } from '../types/social_media_details';
+  import type { SocialMediaDetailsRequest } from "@/lib/api/models/SocialMediaDetailsRequest";
 
-export function extractYoutubeCommentDetailsFromElement(element: HTMLElement): SocialMediaDetails {
+export function extractYoutubeCommentDetailsFromElement(element: HTMLElement): SocialMediaDetailsRequest {
     // Immer die Daten des aktuellen Elements extrahieren!
     const authorElem = element.querySelector('#author-text, a.yt-simple-endpoint.style-scope.yt-formatted-string');
     const author = authorElem?.textContent?.trim() || null;
@@ -12,7 +12,7 @@ export function extractYoutubeCommentDetailsFromElement(element: HTMLElement): S
     const channelUrl = channelLink instanceof HTMLAnchorElement ? channelLink.href : null;
 
     // quoted: Nur für Antworten (is-reply)
-    let quoted: SocialMediaDetails | null = null;
+    let quoted: SocialMediaDetailsRequest | null = null;
     if (element.hasAttribute('is-reply')) {
         // Parent-Kommentar suchen: vorangehendes ytd-comment-view-model im Thread
         const thread = element.closest('ytd-comment-thread-renderer');

@@ -1,4 +1,7 @@
-import type { AllMedia, ImageMedia, VideoMedia, SocialMediaDetails } from "./social_media_interfaces";
+import type { SocialMediaDetailsRequest } from "@/lib/api/models/SocialMediaDetailsRequest";
+import type { AllMediaRequest } from "@/lib/api/models/AllMediaRequest";
+import type { ImageMediaRequest } from "@/lib/api/models/ImageMediaRequest";
+import type { VideoMediaRequest } from "@/lib/api/models/VideoMediaRequest";
 
 // Helper to ensure all queries are within a specific article context if provided
 function queryInArticle(element: HTMLElement, selector: string): Element | null {
@@ -13,8 +16,8 @@ function queryAllInArticle(element: HTMLElement, selector: string): NodeListOf<E
   return element.querySelectorAll(selector.trim());
 }
 
-function extractAllImages(tweetElement: HTMLElement): ImageMedia[] {
-  const images: ImageMedia[] = [];
+function extractAllImages(tweetElement: HTMLElement): ImageMediaRequest[] {
+  const images: ImageMediaRequest[] = [];
 
   // Standard tweet images
   const imageElements = queryAllInArticle(tweetElement, '[data-testid="tweetPhoto"] img');
@@ -46,7 +49,7 @@ function extractAllImages(tweetElement: HTMLElement): ImageMedia[] {
   return images;
 }
 
-function extractVideo(tweetElement: HTMLElement): VideoMedia | null {
+function extractVideo(tweetElement: HTMLElement): VideoMediaRequest | null {
   const videoPlayer = queryInArticle(tweetElement, '[data-testid="videoPlayer"]');
   if (!videoPlayer) return null;
 
@@ -78,7 +81,7 @@ function extractVideo(tweetElement: HTMLElement): VideoMedia | null {
   };
 }
 
-function extractAllMedia(tweetElement: HTMLElement): AllMedia {
+function extractAllMedia(tweetElement: HTMLElement): AllMediaRequest {
   const images = extractAllImages(tweetElement);
   const video = extractVideo(tweetElement);
   const videos = video ? [video] : [];
@@ -90,7 +93,7 @@ function extractAllMedia(tweetElement: HTMLElement): AllMedia {
   };
 }
 
-export async function extractTweetDetailsFromElement(div: HTMLElement): Promise<SocialMediaDetails> {
+export async function extractTweetDetailsFromElement(div: HTMLElement): Promise<SocialMediaDetailsRequest> {
   // div is expected to be the div[data-testid="cellInnerDiv"]
   const articleElement = div.querySelector('article[role="article"]');
 
@@ -116,8 +119,8 @@ export async function extractTweetDetailsFromElement(div: HTMLElement): Promise<
   let username: string | null | undefined = undefined;
   let displayName: string | null | undefined = undefined;
   let tweetContent: string | null | undefined = undefined;
-  let allMediaResult: AllMedia | null = null;
-  let quotedTweetDetails: SocialMediaDetails | null | undefined = null;
+  let allMediaResult: AllMediaRequest | null = null;
+  let quotedTweetDetails: SocialMediaDetailsRequest | null | undefined = null;
 
   if (articleElement) {
     // Username: Look for the link within the User-Name group that is a direct link to the user profile
@@ -142,14 +145,14 @@ export async function extractTweetDetailsFromElement(div: HTMLElement): Promise<
       showMoreButton.click();
       await new Promise(resolve => setTimeout(resolve, 50));
     }
- 
+
     const tweetTextElement = articleElement.querySelector('[data-testid="tweetText"]');
     tweetContent = tweetTextElement?.textContent;
- 
+
     if (articleElement instanceof HTMLElement) {
-        allMediaResult = extractAllMedia(articleElement);
+      allMediaResult = extractAllMedia(articleElement);
     } else {
-        console.warn("extractTweetDetailsFromElement: articleElement is not an HTMLElement:", articleElement);
+      console.warn("extractTweetDetailsFromElement: articleElement is not an HTMLElement:", articleElement);
     }
 
     // Quoted Tweet: Look for an article nested within a link structure, inside the main article's content area
