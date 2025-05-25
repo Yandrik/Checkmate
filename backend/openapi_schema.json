@@ -512,28 +512,32 @@
                     "channelUrl": {
                         "type": "string"
                     },
-                    "videoId": {
-                        "type": "string"
-                    },
-                    "url": {
-                        "type": "string"
-                    },
                     "transcription_close_to_timestamp": {
-                        "type": "string"
+                        "oneOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
                     },
                     "transcription_with_more_context": {
-                        "type": "string"
+                        "oneOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
                     }
                 },
                 "type": "object",
                 "required": [
                     "channel",
                     "channelUrl",
-                    "title",
-                    "transcription_close_to_timestamp",
-                    "transcription_with_more_context",
-                    "url",
-                    "videoId"
+                    "title"
                 ],
                 "title": "MediaDetailsRequest"
             },

@@ -4,8 +4,9 @@ import { sendMessage } from "../messaging";
 import { getBackendClient } from "./backend";
 import { FactCheckResult } from "../api";
 import { FactCheckState, getFactCheckDbService } from "./factcheck_db";
-import { SocialMediaDetails, VideoDetails } from "../social_media_interfaces";
-import { PageContent } from "../messaging"
+import { SocialMediaDetailsRequest } from "@/lib/api/models/SocialMediaDetailsRequest";
+import { MediaDetailsRequest } from "@/lib/api/models/MediaDetailsRequest";
+import { FactCheckDetailsRequest }  from "@/lib/api/models/FactCheckDetailsRequest"
 
 function createApiRepo() {
 
@@ -43,10 +44,10 @@ function createApiRepo() {
             return err(new Error("Failed to retrieve content"));
         },
         async factcheck_section(title: string,url: string,text: string,tabId:number) : Promise<Result<FactCheckResult, Error>> {
-            const content: PageContent = {
+            const content: FactCheckDetailsRequest = {
                   title: title,
-                  url: url,
-                  text: text,
+                    url: url,
+                  content: text,
                   html:""
                 }
             const factCheckDbEntry = await factcheckDb.getUrlFactCheck(tabId.toString());
@@ -71,7 +72,7 @@ function createApiRepo() {
             await factcheckDb.setUrlFactCheck(tabId.toString(), FactCheckState.FAILED, new Date());
             return err(new Error("Failed to retrieve content"));
         },
-        async factcheck_comment(comment: SocialMediaDetails): Promise<FactCheckResult> {
+        async factcheck_comment(comment: SocialMediaDetailsRequest): Promise<FactCheckResult> {
             // await new Promise(resolve => setTimeout(resolve, 5000));
             try {
                 const result = await backendClient.factcheckComment(comment)
@@ -86,8 +87,7 @@ function createApiRepo() {
             }
         },
         
-        async factcheck_video(video_details: VideoDetails): Promise<FactCheckResult> {
-            // await new Promise(resolve => setTimeout(resolve, 5000));
+        async factcheck_video(video_details: MediaDetailsRequest): Promise<FactCheckResult> {
             try {
                 const result = await backendClient.factcheckVideo(video_details)
                 console.log(result);

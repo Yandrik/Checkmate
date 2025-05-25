@@ -1,4 +1,4 @@
-import type { VideoDetails } from "./social_media_interfaces";
+import type { MediaDetailsRequest } from "@/lib/api/models/MediaDetailsRequest";
 
 function getCurrentVideoTime(): number | null {
     const video = document.querySelector('video');
@@ -65,7 +65,7 @@ export function getTranscriptSnippet(
         .trim();
 }
 
-export async function extractYoutubeVideoDetailsFromDocument(doc: Document = document): Promise<VideoDetails> {
+export async function extractYoutubeVideoDetailsFromDocument(doc: Document = document): Promise<MediaDetailsRequest> {
     // Titel
     let title: string | null = null;
     const titleElem = doc.querySelector('h1.ytd-watch-metadata');

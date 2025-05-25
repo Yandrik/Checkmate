@@ -67,10 +67,8 @@ class MediaDetailsRequest:
   title: str
   channel: str
   channelUrl: str
-  videoId: str
-  url: str
-  transcription_close_to_timestamp: str
-  transcription_with_more_context: str
+  transcription_close_to_timestamp: Optional[str] = None
+  transcription_with_more_context: Optional[str] = None
 
 class Verdict(Enum):
   VALID = "valid"
