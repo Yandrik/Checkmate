@@ -19,9 +19,9 @@ function createApiRepo() {
         async factcheck_whole_page(tabId: number): Promise<Result<FactCheckResult, Error>> {
             const factCheckDbEntry = await factcheckDb.getUrlFactCheck(tabId.toString());
             if (factCheckDbEntry instanceof Ok) {
-                if (factCheckDbEntry?.value!.state === FactCheckState.DONE) {
-                    return ok(factCheckDbEntry?.value!.result!);
-                } else if (factCheckDbEntry?.value!.state === FactCheckState.PENDING) {
+                if (factCheckDbEntry.value && factCheckDbEntry.value.state === FactCheckState.DONE) {
+                    return ok(factCheckDbEntry.value!.result!);
+                } else if (factCheckDbEntry.value && factCheckDbEntry.value.state === FactCheckState.PENDING) {
                     return err(new Error("Fact-check is still pending"));
                 }
             }
@@ -52,9 +52,9 @@ function createApiRepo() {
                 }
             const factCheckDbEntry = await factcheckDb.getUrlFactCheck(tabId.toString());
             if (factCheckDbEntry instanceof Ok) {
-                if (factCheckDbEntry?.value!.state === FactCheckState.DONE) {
+                if (factCheckDbEntry.value && factCheckDbEntry.value.state === FactCheckState.DONE) {
                     return ok(factCheckDbEntry.value!.result!);
-                } else if (factCheckDbEntry?.value!.state === FactCheckState.PENDING) {
+                } else if (factCheckDbEntry.value && factCheckDbEntry.value.state === FactCheckState.PENDING) {
                     return err(new Error("Fact-check is still pending"));
                 }
             }
