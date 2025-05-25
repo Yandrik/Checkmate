@@ -89,9 +89,9 @@ class Agent:
         :return: FactCheckResult containing the verdict and sources.
         """
         messages = [
-            {'role': 'user', 'content': f'Fact-check this website: {search_req.url} with content: {search_req.content} /no_think'}
+            {'role': 'user', 'content': f'Fact-check this website: {search_req.url} with content: {search_req.content}'}
         ]
-        response = self.ai_run(messages)
+        response = self.ai_run(messages, thorough=True)
         return response
     
     def factcheck_social_media(self, social_med: SocialMediaDetailsRequest) -> FactCheckResult:
@@ -151,7 +151,12 @@ class Agent:
         :return: Generator yielding responses from the agent.
         """
         response_json: Any | None = None
-        *_, response_list = self.bot.run(messages=messages)  if not thorough else  self.dispatcher_bot.run(messages=messages)  # type:ignore
+        
+        response_list = []
+        response_plain_text = ""
+        for response in self.bot.run(messages=messages)  if not thorough else  self.dispatcher_bot.run(messages=messages):  # type:ignore
+            typewriter_print(response, response_plain_text)
+            response_list = response
         response_json = response_list[-1].get('content')
         if response_json is None:
             self.logger.error("No valid response from the AI agent.")

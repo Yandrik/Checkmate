@@ -8,6 +8,11 @@
   import CheckInformation from "./CheckInformation.svelte";
   import { FactCheckResult } from "../api";
   import { sendMessage } from "../messaging";
+  import {
+    FactCheckState,
+    getFactCheckDbService,
+  } from "../proxyservice/factcheck_db";
+  import { Ok } from "neverthrow";
 
   // Props
   const { visible = true } = $props<{
@@ -20,6 +25,24 @@
   let factState = $state(FactState.NONE);
   let showInfo = $state(false);
   let response = $state<FactCheckResult | null>(null);
+
+  async function onMountReadCached() {
+    const tabId = await sendMessage("getCurrentTabId", undefined);
+    if (tabId === -1) {
+      console.error("Failed to retrieve current tab ID.");
+      return;
+    }
+    const cached =
+      await getFactCheckService().get_cached_factcheck_whole_page(tabId);
+    if (cached !== null) {
+      factState = fromVerdict(cached.verdict);
+      response = cached;
+    }
+  }
+
+  onMount(() => {
+    onMountReadCached();
+  });
 
   async function handleClick() {
     if (factState !== FactState.NONE) {
@@ -48,12 +71,12 @@
       }
       const result = await getFactCheckService().factcheck_whole_page(tabId);
 
-      if (result.isOk()) {
-        console.log("Full page fact check response:", result.value);
-        response = result.value;
-        factState = fromVerdict(result.value.verdict);
+      if (typeof result === "object" && result !== null) {
+        console.log("Full page fact check response:", result);
+        response = result;
+        factState = fromVerdict(result.verdict);
       } else {
-        throw result.error;
+        throw new Error(typeof result === "string" ? result : "Unknown error");
       }
     } catch (e: any) {
       console.error("Error performing full page fact check:", e);

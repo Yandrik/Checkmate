@@ -149,7 +149,7 @@
 
   <!-- create a form to submit a message to the background script -->
   <form class="flex flex-col gap-2">
-    <input type="text" name="message" placeholder="Message" />
+    <input type="text" name="message" placeholder="Message" class="input" />
     <button type="submit">Submit</button>
   </form>
 </main>

@@ -1,8 +1,8 @@
 import { defineProxyService } from "@webext-core/proxy-service";
 import { BackendClient, FactCheckResult, MediaDetailsRequest, Verdict } from "../api"
-import {ok, err, Result} from "neverthrow";
+import { ok, err, Result } from "neverthrow";
 import { SocialMediaDetailsRequest } from "@/lib/api/models/SocialMediaDetailsRequest";
-import { FactCheckDetailsRequest }  from "@/lib/api/models/FactCheckDetailsRequest"
+import { FactCheckDetailsRequest } from "@/lib/api/models/FactCheckDetailsRequest"
 
 function createApiRepo() {
     const backendClient = new BackendClient(
@@ -14,11 +14,11 @@ function createApiRepo() {
     );
 
     return {
-        async factcheck(content: FactCheckDetailsRequest): Promise<Result<FactCheckResult, Error>> {
+        async factcheck(content: FactCheckDetailsRequest): Promise<FactCheckResult | string> {
             try {
-                return ok(await backendClient.default.factcheckHandleFactCheck(content))
+                return await backendClient.default.factcheckHandleFactCheck(content)
             } catch (error) {
-                return err(Error("Failed to perform factcheck", { cause: error }));
+                return "Failed to perform factcheck: " + error;
             }
         },
 
@@ -36,7 +36,14 @@ function createApiRepo() {
             } catch (error) {
                 return err(Error("Failed to perform factcheck on comment", { cause: error }));
             }
-        }
+        },
+        async factcheckText(content: string): Promise<Result<FactCheckResult, Error>> {
+            try {
+                return ok(await backendClient.default.factcheckTextHandleFactCheckText(content))
+            } catch (error) {
+                return err(Error("Failed to perform factcheck", { cause: error }));
+            }
+        },
     }
 }
 
