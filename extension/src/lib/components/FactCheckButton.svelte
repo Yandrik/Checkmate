@@ -124,13 +124,11 @@
   {#if factState === FactState.NONE}
     <span out:scale={{ duration: 200, start: 0 }}>Fact Check</span>
   {/if}
-  <div class="flex-col items-right justify-end">
-    <FactDisplay
-      onclick={handleFactDisplayClick}
-      state={factState}
-      classes="ztop h-5 w-5"
-    />
-  </div>
+  <FactDisplay
+    onclick={handleFactDisplayClick}
+    state={factState}
+    classes="ztop h-5 w-5"
+  />
 </button>
 
 {#if showInfo && response !== null}

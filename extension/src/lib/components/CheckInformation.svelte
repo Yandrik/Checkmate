@@ -33,8 +33,9 @@
   style="z-index: {zindex};"
 >
   <span class="text-center"
-    ><strong>{response.verdict}</strong> ({Math.round(
-      response.score * 100
+    ><strong>{response.verdict}</strong> ({Math.min(
+      Math.max(0, response.score),
+      100
     )}%)</span
   >
   <p class="text-left">
@@ -42,14 +43,13 @@
     <span>{response.check_result}</span>
   </p>
   <div class="flex flex-row flex-wrap">
-    <div class="chip-icon text-xs">
-      {#each response.sources as source}
-        <div
-          class="chip-icon border-[rgb(100, 200, 0)] border-2 p-1 rounded-full"
-        >
-          <span>{source.name}</span>
-        </div>
-      {/each}
-    </div>
+    {#each response.sources as source}
+      <a
+        href={source.link}
+        class="chip border-[rgb(100, 200, 0)] border-2 p-1 rounded-full gap-1 m-1"
+      >
+        <span>{source.name}</span>
+      </a>
+    {/each}
   </div>
 </div>
