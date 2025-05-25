@@ -1,5 +1,5 @@
 import { onMessage } from "@/lib/messaging";
-import { registerBackendClient } from "@/lib/proxyservice/backend";
+import { getBackendClient, registerBackendClient } from "@/lib/proxyservice/backend";
 import { registerFactCheckService, getFactCheckService } from "@/lib/proxyservice/factcheck";
 import { registerFactCheckDbService } from "@/lib/proxyservice/factcheck_db";
 
@@ -18,8 +18,10 @@ export default defineBackground(() => {
   browser.contextMenus.onClicked.addListener((info, tab) => {
     if (info.menuItemId === contextMenuNameId) {
       if (info.selectionText) {
-        const service = getFactCheckService();
-        service.factcheck_section(tab?.title || "", info.pageUrl || "", info.selectionText, tab?.id || 0).then(response => {
+        console.log("Selected text for fact check: ", info.selectionText);
+        
+        const backendClient = getBackendClient();
+        backendClient.factcheckText(info.selectionText).then(response => {
           console.log("Fact check response: ", response);
         })
       }
