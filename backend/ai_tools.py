@@ -56,7 +56,7 @@ class FactChecker(BaseTool):
         if isinstance(search_result, Ok):
             try:
                 result = completion(
-                    model=settings.model,
+                    model= 'openrouter/' + settings.model,
                     messages=[
                         {
                             "role": "system",
@@ -64,12 +64,13 @@ class FactChecker(BaseTool):
                         },
                         {
                             "role": "user",
-                            "content": f"Factoid: \"{prompt}\"\n\n=== Web Search (Query: \"{search_query}\")===\n{search_result.ok_value}Based on the search results: {search_result.unwrap()}",
+                            "content": f"Factoid: \"{prompt}\"\n\n=== Web Search (Query: \"{search_query}\")===\n{search_result.ok_value}\n\nPlease fact-check the above factoid based on the web search results. Provide a JSON response based on the Answer schema.",
                         },
                     ],
                     max_tokens=1000,
                     api_key=settings.api_key.get_secret_value(),  # type: ignore
-                    base_url=settings.model_server,  # type: ignore
+                    # base_url=settings.model_server.__str__(),  # type: ignore
+                    
                 )
                 result_text: str = result.choices[0].message.content  # type: ignore
                 print(f"Fact-checking result: {result_text} \nfor prompt: {prompt} \nand search query: {search_query}")

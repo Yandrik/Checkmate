@@ -1,11 +1,11 @@
 import { Verdict } from "@/lib/api/models/Verdict";
 
 export enum FactState {
-NONE = "NONE",
-LOADING = "LOADING",
-VALID = "VALID",
-INVALID = "INVALID",
-UNKNOWN = "UNKNOWN",
+    NONE = "NONE",
+    LOADING = "LOADING",
+    VALID = "VALID",
+    INVALID = "INVALID",
+    UNKNOWN = "UNKNOWN",
 }
 
 export function fromVerdict(verdict: Verdict | string): FactState {
@@ -17,6 +17,7 @@ export function fromVerdict(verdict: Verdict | string): FactState {
             case "invalid":
                 return FactState.INVALID;
             case "partially valid":
+            case "partially_valid":
                 return FactState.UNKNOWN;
             case "unsure":
                 return FactState.UNKNOWN;
