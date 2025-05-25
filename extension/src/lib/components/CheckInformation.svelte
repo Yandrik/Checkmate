@@ -22,6 +22,8 @@
         return "unknown";
       case FactState.LOADING:
         return "loading";
+      case FactState.PARTIALLY_VALID:
+        return "partially_valid";
       default:
         return "default";
     }
@@ -29,7 +31,7 @@
 </script>
 
 <div
-  class="card {colors} min-w-48 p-2 {classes} text-sm"
+  class="card {colors} min-w-48 p-2 {classes} text-sm z-[2000000]"
   style="z-index: {zindex};"
 >
   <span class="text-center"

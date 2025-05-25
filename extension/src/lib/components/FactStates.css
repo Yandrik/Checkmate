@@ -14,12 +14,21 @@
   background-color: rgb(153 27 27);
 }
 
-.unknown {
+.partially_valid {
   background-color: rgb(113 63 18);
   color: rgb(251 191 36);
 }
-.unknown:hover {
+.partially_valid:hover {
   background-color: rgb(133 77 14);
+}
+
+.unknown {
+  background-color: rgb(55, 36, 73);
+  color: rgb(242, 194, 242);
+}
+
+.unknown:hover {
+  background-color: rgb(75, 45, 93);
 }
 
 .loading {
