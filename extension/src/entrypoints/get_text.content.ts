@@ -8,7 +8,7 @@ export default defineContentScript({
             const content = {
                 title: document.title,
                 url: window.location.href,
-                text: document.body.innerText,
+                content: document.body.innerText.split(' ').slice(0, 10000).join(' '),
                 html: document.documentElement.outerHTML
             };
             return content;
