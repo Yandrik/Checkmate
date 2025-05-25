@@ -46,12 +46,12 @@
         console.log("Extracted tweet details:", extractedDetails);
       } catch (e: any) {
         console.error(
-          "Error extracting tweet details in Svelte component:",
+          "Error extracting details in Svelte component:",
           e,
           "for element:",
           tweetElement,
         );
-        error = e.message || "Failed to extract tweet details.";
+        error = e.message || "Failed to extract details.";
         isLoading = false;
         return;
       } finally {

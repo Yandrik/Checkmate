@@ -94,7 +94,7 @@ export async function extractYoutubeVideoDetailsFromDocument(doc: Document = doc
         const xmlString = await fetch(baseUrl).then(r => r.text());
         const transcript = parseTranscriptXml(xmlString);
         const snippet = getTranscriptSnippet(transcript, currentTime, 15, 5);
-        const snippet2 = getTranscriptSnippet(transcript, currentTime, 300, 60);
+        const snippet2 = getTranscriptSnippet(transcript, currentTime, 500, 120);
         if (snippet) {
             transcription_close_to_timestamp = snippet;
         }

@@ -49,13 +49,13 @@
       if (!commentRoot) throw new Error("Kein comment-root gefunden!");
 
       extractedDetails = extractYoutubeCommentDetailsFromElement(commentRoot);
-      console.log("Extracted YouTube comment details:", extractedDetails);
+      console.log("Extracted details:", extractedDetails);
     } catch (e: any) {
       console.error(
-        "Error extracting reddit post details in Svelte component:",
+        "Error extracting details in Svelte component:",
         e,
       );
-      error = e.message || "Failed to extract reddit post details.";
+      error = e.message || "Failed to extract details.";
       isLoading = false;
       return;
     } finally {

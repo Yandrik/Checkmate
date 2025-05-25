@@ -39,7 +39,7 @@
       console.log("Extracted details:", extractedDetails);
     } catch (e: any) {
       console.error("Error extracting details in Svelte component:", e);
-      error = e.message || "Failed to extract reddit post details.";
+      error = e.message || "Failed to extract details.";
       isLoading = false;
       return;
     } finally {
@@ -57,7 +57,10 @@
       return;
     }
 
-    if (!extractedDetails.channel && !extractedDetails.transcription_close_to_timestamp) {
+    if (
+      !extractedDetails.channel &&
+      !extractedDetails.transcription_close_to_timestamp
+    ) {
       console.warn("No content to fact-check.");
       alert("No content to fact-check.");
       return;
@@ -65,8 +68,7 @@
 
     factState = FactState.LOADING;
     try {
-      const res =
-        await getFactCheckService().factcheck_video(extractedDetails);
+      const res = await getFactCheckService().factcheck_video(extractedDetails);
       console.log("Fact check response:", res);
       response = res;
       factState = fromVerdict(res.verdict);
@@ -104,6 +106,15 @@
     classes="ztop h-5 w-5"
   />
 </button>
+
+{#if showInfo && response !== null}
+  <CheckInformation
+    {response}
+    classes="fixed top-12 right-4"
+    state={factState}
+    zindex={10000000}
+  />
+{/if}
 
 <style lang="postcss">
   :root {

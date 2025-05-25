@@ -48,13 +48,13 @@
       if (!redditRoot) throw new Error("Kein shreddit-post gefunden!");
 
       extractedDetails = extractRedditDetailsFromElement(redditRoot);
-      console.log("Extracted reddit post details:", extractedDetails);
+      console.log("Extracted details:", extractedDetails);
     } catch (e: any) {
       console.error(
-        "Error extracting reddit post details in Svelte component:",
+        "Error extracting details in Svelte component:",
         e,
       );
-      error = e.message || "Failed to extract reddit post details.";
+      error = e.message || "Failed to extract details.";
       isLoading = false;
       return;
     } finally {

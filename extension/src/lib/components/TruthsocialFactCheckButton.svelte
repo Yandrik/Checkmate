@@ -63,15 +63,15 @@
 
             extractedDetails = extractTruthsocialDetails(postRoot);
             console.log(
-                "Extracted truth social post details:",
+                "Extracted details:",
                 extractedDetails,
             );
         } catch (e: any) {
             console.error(
-                "Error extracting truth social post details in Svelte component:",
+                "Error extracting details in Svelte component:",
                 e,
             );
-            error = e.message || "Failed to extract truth sicual post details.";
+            error = e.message || "Failed to extract post details.";
             isLoading = false;
             return;
         } finally {

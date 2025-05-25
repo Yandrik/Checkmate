@@ -49,7 +49,7 @@ class FactcheckController(Controller):
   @post("/media")
   async def handle_fact_check_media(self,data: MediaDetailsRequest) -> FactCheckResult:
     try:
-      self.logger.info(f"Received input: {data.title} -> {data.url}")
+      self.logger.info(f"Received input: {data.title} -> {data.channel}")
       return agent.factcheck_media_details(data)
     except Exception as e:
       self.logger.error(f"Error processing media fact check: {e}")

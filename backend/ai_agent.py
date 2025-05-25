@@ -115,7 +115,7 @@ class Agent:
 
     def factcheck_media_details(self, media_details: MediaDetailsRequest) -> FactCheckResult:
         messages = [
-            {'role': 'user', 'content': f'Fact-check this youtube video from this channel: {media_details.channel}. The relevant information you should research to is here: {media_details.transcription_close_to_timestamp}, but also put it into the broad context: {media_details.transcription_with_more_context}. The video ID is {media_details.videoId} and the URL is {media_details.url}. Also check the credibility of the channel. /no_think'}
+            {'role': 'user', 'content': f'Fact-check this youtube video from this channel: {media_details.channel}. The relevant information you should research to is here: {media_details.transcription_close_to_timestamp}, but also put it into the broad context: {media_details.transcription_with_more_context}. Also check the credibility of the channel. /no_think'}
         ]
         response = self.ai_run(messages)
         return response
