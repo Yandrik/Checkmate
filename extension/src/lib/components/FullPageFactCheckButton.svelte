@@ -7,6 +7,11 @@
   import CheckInformation from "./CheckInformation.svelte";
   import { FactCheckResult } from "../api";
   import { sendMessage } from "../messaging";
+  import {
+    FactCheckState,
+    getFactCheckDbService,
+  } from "../proxyservice/factcheck_db";
+  import { Ok } from "neverthrow";
 
   // Props
   const { visible = true } = $props<{
@@ -19,6 +24,24 @@
   let factState = $state(FactState.NONE);
   let showInfo = $state(false);
   let response = $state<FactCheckResult | null>(null);
+
+  async function onMountReadCached() {
+    const tabId = await sendMessage("getCurrentTabId", undefined);
+    if (tabId === -1) {
+      console.error("Failed to retrieve current tab ID.");
+      return;
+    }
+    const cached =
+      await getFactCheckService().get_cached_factcheck_whole_page(tabId);
+    if (cached !== null) {
+      factState = fromVerdict(cached.verdict);
+      response = cached;
+    }
+  }
+
+  onMount(() => {
+    onMountReadCached();
+  });
 
   async function handleClick() {
     if (factState !== FactState.NONE) {

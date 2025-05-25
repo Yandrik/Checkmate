@@ -16,37 +16,51 @@ function createApiRepo() {
 
 
     return {
-        async factcheck_whole_page(tabId: number): Promise<FactCheckResult | string> {
-            const factCheckDbEntry = await factcheckDb.getUrlFactCheck(tabId.toString());
-            if (factCheckDbEntry instanceof Ok && factCheckDbEntry.value) {
-                if (factCheckDbEntry.value.state === FactCheckState.DONE) {
-                    return factCheckDbEntry.value!.result!;
-                } else if (factCheckDbEntry.value!.state === FactCheckState.PENDING) {
-                    return "Fact-check is still pending";
-                }
-            }
-
-            await factcheckDb.setUrlFactCheck(tabId.toString(), FactCheckState.PENDING, new Date());
-
+        async get_cached_factcheck_whole_page(tabId: number): Promise<FactCheckResult | null> {
             const content = await sendMessage("getPageContent", undefined, tabId);
             if (content) {
+                const factCheckDbEntry = await factcheckDb.getUrlFactCheck(content.url);
+                if (factCheckDbEntry instanceof Ok && factCheckDbEntry.value) {
+                    if (factCheckDbEntry.value.state === FactCheckState.DONE) {
+                        return factCheckDbEntry.value!.result!;
+                    } else if (factCheckDbEntry.value.state === FactCheckState.PENDING) {
+                        return null; // Fact-check is still pending
+                    }
+                }
+            }
+            return null; // No cached fact-check found
+        },
+        async factcheck_whole_page(tabId: number): Promise<FactCheckResult | string> {
+            const content = await sendMessage("getPageContent", undefined, tabId);
+            if (content) {
+                const factCheckDbEntry = await factcheckDb.getUrlFactCheck(content.url);
+                if (factCheckDbEntry instanceof Ok && factCheckDbEntry.value) {
+                    if (factCheckDbEntry.value.state === FactCheckState.DONE) {
+                        return factCheckDbEntry.value!.result!;
+                    } else if (factCheckDbEntry.value!.state === FactCheckState.PENDING) {
+                        return "Fact-check is still pending";
+                    }
+                }
+
+                await factcheckDb.setUrlFactCheck(content.url, FactCheckState.PENDING, new Date());
+
                 console.log(content);
                 const result = await backendClient.factcheck(content);
-                console.log(result);
+                console.log(result)
 
                 if (typeof result === "object" && result !== null) {
-                    await factcheckDb.setUrlFactCheck(tabId.toString(), FactCheckState.DONE, new Date(), result);
+                    await factcheckDb.setUrlFactCheck(content.url, FactCheckState.DONE, new Date(), result);
                     return result;
                 } else {
-                    await factcheckDb.setUrlFactCheck(tabId.toString(), FactCheckState.FAILED, new Date());
+                    await factcheckDb.setUrlFactCheck(content.url, FactCheckState.FAILED, new Date());
                     console.warn(err(new Error("Failed to perform fact-check", { cause: result })));
                     return "Failed to perform fact-check";
                 }
+            } else {
+                return "Failed to retrieve content";
             }
-            await factcheckDb.setUrlFactCheck(tabId.toString(), FactCheckState.FAILED, new Date());
-            console.warn("Failed to retrieve content for fact-checking");
-            return "Failed to retrieve content";
         },
+
         async factcheck_section(title: string, url: string, text: string, tabId: number): Promise<Result<FactCheckResult, Error>> {
             const content: FactCheckDetailsRequest = {
                 title: title,
