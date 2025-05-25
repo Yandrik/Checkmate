@@ -47,12 +47,12 @@
       }
       const result = await getFactCheckService().factcheck_whole_page(tabId);
 
-      if (result.isOk()) {
-        console.log("Full page fact check response:", result.value);
-        response = result.value;
-        factState = fromVerdict(result.value.verdict);
+      if (typeof result === "object" && result !== null) {
+        console.log("Full page fact check response:", result);
+        response = result;
+        factState = fromVerdict(result.verdict);
       } else {
-        throw result.error;
+        throw new Error(typeof result === "string" ? result : "Unknown error");
       }
     } catch (e: any) {
       console.error("Error performing full page fact check:", e);
