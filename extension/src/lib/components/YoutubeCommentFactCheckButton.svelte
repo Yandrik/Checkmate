@@ -1,7 +1,7 @@
 <script lang="ts">
   import "../../app.css";
   import { extractYoutubeCommentDetailsFromElement } from "@/lib/youtube_comment_extract";
-  import type { SocialMediaDetails } from "./social_media_interfaces";
+  import type { SocialMediaDetailsRequest } from "@/lib/api/models/SocialMediaDetailsRequest";
   import FactDisplay from "./FactDisplay.svelte";
   import { FactState, fromVerdict } from "@/util/fact_state";
   import { getFactCheckService } from "../proxyservice/factcheck";
@@ -10,7 +10,7 @@
   import { FactCheckResult } from "../api";
 
   let hostElement: HTMLElement | null = null;
-  let extractedDetails = $state<SocialMediaDetails | null>(null);
+  let extractedDetails = $state<SocialMediaDetailsRequest | null>(null);
   let isLoading = $state(false);
   let error = $state<string | null>(null);
   let factState = $state(FactState.NONE);

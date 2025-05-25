@@ -1,7 +1,8 @@
-import type { AllMedia, SocialMediaDetails } from "./social_media_interfaces";
+import type { SocialMediaDetailsRequest } from "@/lib/api/models/SocialMediaDetailsRequest";
+import type { AllMediaRequest } from "@/lib/api/models/AllMediaRequest"
 
 
-function extractAllMedia(element: HTMLElement): AllMedia {
+function extractAllMedia(element: HTMLElement): AllMediaRequest {
     const images = Array.from(element.querySelectorAll('img')).filter(img => {
         // Filtere Avatare, Emojis, UI-Icons etc. raus
         const src = img.src;
@@ -53,7 +54,7 @@ function extractDisplayNameAndUsername(element: HTMLElement): { displayName: str
     return { displayName, username };
 }
 
-function extractQuotedPost(element: HTMLElement): SocialMediaDetails | null {
+function extractQuotedPost(element: HTMLElement): SocialMediaDetailsRequest | null {
     const quoted = element.querySelector('[data-testid="quoted-status"]');
     if (!quoted) return null;
 
@@ -74,7 +75,7 @@ function extractQuotedPost(element: HTMLElement): SocialMediaDetails | null {
     return { platform: 'Truth Social', username, displayName, content, allMedia, isAd: false, quoted: null };
 }
 
-export function extractTruthsocialDetails(element: HTMLElement): SocialMediaDetails {
+export function extractTruthsocialDetails(element: HTMLElement): SocialMediaDetailsRequest {
     // ID
     const dataId = element.getAttribute('data-id') || null;
 

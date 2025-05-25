@@ -82,8 +82,8 @@ export async function extractYoutubeVideoDetailsFromDocument(doc: Document = doc
 
     // Channel-Name und URL
     const channelLink = doc.querySelector('ytd-channel-name a');
-    const channel = channelLink?.textContent?.trim() || null;
-    const channelUrl = channelLink instanceof HTMLAnchorElement ? channelLink.href : null;
+    const channel = channelLink?.textContent?.trim() || "";
+    const channelUrl = channelLink instanceof HTMLAnchorElement ? channelLink.href : "";
 
     let transcription_close_to_timestamp: string | null = null;
     let transcription_with_more_context: string | null = null;

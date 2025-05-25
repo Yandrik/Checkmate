@@ -1,9 +1,10 @@
 // --- Interfaces ---
-import type { ImageMedia, VideoMedia, AllMedia, SocialMediaDetails } from "./social_media_interfaces";
-
+import type { SocialMediaDetailsRequest } from "@/lib/api/models/SocialMediaDetailsRequest";
+import type { ImageMediaRequest } from "@/lib/api/models/ImageMediaRequest";
+import type {  VideoMediaRequest } from "@/lib/api/models/VideoMediaRequest";
 // --- Extraction Logic ---
 
-export function extractRedditDetailsFromElement(element: HTMLElement): SocialMediaDetails {
+export function extractRedditDetailsFromElement(element: HTMLElement): SocialMediaDetailsRequest {
     // Autor extrahieren
     const username = element.getAttribute('author') || null;
 
@@ -13,7 +14,7 @@ export function extractRedditDetailsFromElement(element: HTMLElement): SocialMed
     // Text extrahieren
     let title: string | null = null;
     let content: string | null = null;
-    let quoted: SocialMediaDetails | null = null;
+    let quoted: SocialMediaDetailsRequest | null = null;
     if (isPost) {
         // Titel extrahieren
         title = element.getAttribute('post-title') || '';
@@ -79,7 +80,7 @@ export function extractRedditDetailsFromElement(element: HTMLElement): SocialMed
                 const parentCommentContent = parentComment.querySelector('[slot="comment"]');
                 const parentContent = parentCommentContent?.textContent?.trim() || null;
                 // Bilder/Videos extrahieren (optional)
-                const parentImages: ImageMedia[] = [];
+                const parentImages: ImageMediaRequest[] = [];
                 parentComment.querySelectorAll('img').forEach((img) => {
                     const src = img.src;
                     if (
@@ -109,7 +110,7 @@ export function extractRedditDetailsFromElement(element: HTMLElement): SocialMed
                         position: parentImages.length + 1,
                     });
                 });
-                const parentVideos: VideoMedia[] = [];
+                const parentVideos: VideoMediaRequest[] = [];
                 parentComment.querySelectorAll('video').forEach((video) => {
                     parentVideos.push({
                         type: 'video',
@@ -138,7 +139,7 @@ export function extractRedditDetailsFromElement(element: HTMLElement): SocialMed
     }
 
     // Bilder extrahieren
-    const images: ImageMedia[] = [];
+    const images: ImageMediaRequest[] = [];
     const seen = new Set<string>();
     element.querySelectorAll('img').forEach((img) => {
         const src = img.src;
@@ -177,7 +178,7 @@ export function extractRedditDetailsFromElement(element: HTMLElement): SocialMed
     });
 
     // Videos extrahieren
-    const videos: VideoMedia[] = [];
+    const videos: VideoMediaRequest[] = [];
     element.querySelectorAll('video').forEach((video) => {
         videos.push({
             type: 'video',
