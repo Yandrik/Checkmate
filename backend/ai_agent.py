@@ -1,9 +1,9 @@
 import os
 import logging
-from typing import Dict, List
+from typing import Any, Dict, List
 import json5
+from qwen_agent.agent import Message
 from qwen_agent.agents import Assistant #type: ignore
-from qwen_agent.tools.base import BaseTool #type: ignore
 from qwen_agent.utils.output_beautify import typewriter_print #type: ignore
 import ai_tools
 
@@ -57,11 +57,8 @@ class Agent:
 
 
     def parse_ai_response(self, ai_response) -> FactCheckResult: #type: ignore
-        ai_response = ai_response.strip()
+        ai_response =' '.join(ai_response.replace("\\n","").strip().split())
         # Truncate everything before the first occurrence of '\n{\n'
-        idx = ai_response.find('\n{\n')
-        if idx != -1:
-            ai_response = ai_response[idx+1:]
         ai_response_json = json5.loads(ai_response)
         # If the response is a list, take the first element (as in the provided example)
         if isinstance(ai_response_json, list):
@@ -169,16 +166,14 @@ class Agent:
         :param messages: List of messages to process.
         :return: Generator yielding responses from the agent.
         """
-        #messages = []
-        #query = 'Watermelons are vegetables'
-        #messages.append({'role': 'user', 'content': query})
-        response = []
+        response_json: Any | None = None
         response_plain_text = ''
-        for response in self.bot.run(messages=messages): #type: ignore
-            # Streaming output.
-            response_plain_text = typewriter_print(response, response_plain_text) #type: ignore
-        # Prints the Resonse in the FactCheckResult class
-        return self.parse_ai_response(response_plain_text) #type: ignore
+        *_, response_list = self.bot.run(messages=messages)
+        response_json = response_list[-1].get('content')
+        if response_json is None:
+            self.logger.error("No valid response from the AI agent.")
+            raise ValueError("No response from the AI agent.")
+        return self.parse_ai_response(response_json) #type: ignore
 
 if __name__ == "__main__":
     # Example usage
