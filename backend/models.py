@@ -25,7 +25,7 @@ class FactCheckDetailsRequest(BaseModel):
   title: str
   url: str
   content: str
-  html: str
+  html: Optional[str]
 
 @dataclass
 class ImageMediaRequest:
@@ -71,13 +71,6 @@ class MediaDetailsRequest:
   url: str
   transcription_close_to_timestamp: str
   transcription_with_more_context: str
-
-@dataclass
-class MediaCommentDetailsRequest:
-  """Request model for yt video comment"""
-  author: str
-  channelUrl: str
-  content: str
 
 class Verdict(Enum):
   VALID = "valid"

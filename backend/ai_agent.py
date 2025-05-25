@@ -15,7 +15,6 @@ from models import (
     SocialMediaDetailsRequest,
     AllMediaRequest,
     MediaDetailsRequest,
-    MediaCommentDetailsRequest,
     FactCheckDetailsRequest)
 from prompts import DISPATCHER_SYSTEM_PROMPT, SIMPLE_FACTCHECKER_SYSTEM_PROMPT
 
@@ -31,7 +30,7 @@ class Agent:
         }
         # system_instruction = DISPATCHER_SYSTEM_PROMPT
         system_instruction = SIMPLE_FACTCHECKER_SYSTEM_PROMPT
-        tools = ['web_search']
+        tools = ['web_search_2', 'fetch_webpage']
 
         dispatcher_system_instruction = DISPATCHER_SYSTEM_PROMPT
         dispatcher_tools = ['fact_check']
@@ -90,14 +89,14 @@ class Agent:
         :return: FactCheckResult containing the verdict and sources.
         """
         messages = [
-            {'role': 'user', 'content': f'Fact-check this website: {search_req.url} with content: {search_req.content} \no_think'}
+            {'role': 'user', 'content': f'Fact-check this website: {search_req.url} with content: {search_req.content} /no_think'}
         ]
         response = self.ai_run(messages)
         return response
     
     def factcheck_social_media(self, social_med: SocialMediaDetailsRequest) -> FactCheckResult:
         messages = [
-            {'role': 'user', 'content': f'Fact-check this comment on a social media platform from user: {social_med.username} with content: {social_med.content}. Also check the credibility of the user. /no_think'}
+            {'role': 'user', 'content': f'Fact-check this comment on a social media platform from user: {social_med.username} with content: {social_med.content}. /no_think'}
         ]
         response = self.ai_run(messages)
         return response
@@ -142,25 +141,6 @@ class Agent:
         messages = [
             {'role': 'user', 'content': prompt}
         ]
-        response = self.ai_run(messages)
-        return response
-    
-    def factcheck_media_comment(self, media_comments: MediaCommentDetailsRequest) -> FactCheckResult:
-        """
-        Fact-check media comments.
-        :param media_comments: List of MediaCommentDetailsRequest objects to fact-check.
-        :return: FactCheckResult containing the verdicts and sources for each comment.
-        """
-        if not media_comments:
-            raise ValueError("No media comments provided for fact-checking.")
-        
-        messages = []
-        # for comment in :
-        messages.append({
-            'role': 'user',
-            'content': f'Fact-check this social media comment: \n"{media_comments.author}" said:\n{media_comments.content}\n/no_think'
-        })
-        
         response = self.ai_run(messages)
         return response
     

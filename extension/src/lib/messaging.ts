@@ -1,11 +1,11 @@
 import { defineExtensionMessaging } from "@webext-core/messaging";
 import { Result } from "neverthrow";
 
-interface PageContent {
+export interface PageContent {
     title: string;
     url: string;
     text: string;
-    html: string;
+    html?: string;
 }
 
 interface ProtocolMap {

@@ -2,7 +2,7 @@ import { defineProxyService } from "@webext-core/proxy-service";
 import { BackendClient, FactCheckResult, Verdict } from "../api"
 import {ok, err, Result} from "neverthrow";
 import { SocialMediaDetails, VideoDetails } from "../social_media_interfaces";
-
+import { PageContent } from "../messaging"
 
 function createApiRepo() {
     const backendClient = new BackendClient(
@@ -14,14 +14,14 @@ function createApiRepo() {
     );
 
     return {
-        async factcheck(title: string, url: string, content: string, html: string): Promise<Result<FactCheckResult, Error>> {
+        async factcheck(content: PageContent): Promise<Result<FactCheckResult, Error>> {
             try {
-            return ok(await backendClient.default.factcheckHandleFactCheck({
-                title,
-                url,
-                content,
-                html,
-            }))
+                return ok(await backendClient.default.factcheckHandleFactCheck({
+                    content: content.text,
+                    title: content.title,
+                    url: content.url,
+                    html: content.html
+                }))
             } catch (error) {
                 return err(Error("Failed to perform factcheck", { cause: error }));
             }

@@ -1,12 +1,10 @@
 import logging
 from litestar import Litestar, get,Controller
-import hypercorn
-from litestar.di import Provide
 import asyncio # type: ignore[import]
 import uvicorn
 from controller import FactcheckController
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG)
 
 logger = logging.getLogger()
 
