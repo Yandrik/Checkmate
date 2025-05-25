@@ -5,6 +5,7 @@ export enum FactState {
     LOADING = "LOADING",
     VALID = "VALID",
     INVALID = "INVALID",
+    PARTIALLY_VALID = "PARTIALLY_VALID",
     UNKNOWN = "UNKNOWN",
 }
 
@@ -18,7 +19,7 @@ export function fromVerdict(verdict: Verdict | string): FactState {
                 return FactState.INVALID;
             case "partially valid":
             case "partially_valid":
-                return FactState.UNKNOWN;
+                return FactState.PARTIALLY_VALID;
             case "unsure":
                 return FactState.UNKNOWN;
             default:

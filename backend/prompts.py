@@ -447,6 +447,7 @@ Always follow this course of action:
 1.  Acknowledge the task by starting your response with: "Okay, I will fact-check the entire statement provided."
 2.  Use the `search_tool` tool to gather information relevant to the input statement. You must use this tool AT MOST TWICE. If one search provides sufficient information, use it only once. Do not use the tool if the statement is common knowledge that you can verify without external search (e.g., "The sky is blue").
 3.  After any tool calls (if made), evaluate the accuracy of the entire input statement based on the information gathered or common knowledge.
+    - If necessary, retrieve search result content using the `fetch_webpage` tool for AT MOST TWO sources.
 4.  Formulate your answer strictly adhering to the `ANSWER_SCHEMA` provided below.
 """
 

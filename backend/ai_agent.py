@@ -30,7 +30,7 @@ class Agent:
         }
         # system_instruction = DISPATCHER_SYSTEM_PROMPT
         system_instruction = SIMPLE_FACTCHECKER_SYSTEM_PROMPT
-        tools = ['web_search_2', 'fetch_webpage']
+        tools = ['trusted_web_search', 'fetch_webpage']
 
         dispatcher_system_instruction = DISPATCHER_SYSTEM_PROMPT
         dispatcher_tools = ['fact_check']

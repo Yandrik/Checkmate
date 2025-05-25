@@ -1,33 +1,33 @@
 import { defineProxyService } from "@webext-core/proxy-service";
-import {ok, err, Result, Ok} from "neverthrow";
+import { ok, err, Result, Ok } from "neverthrow";
 import { sendMessage } from "../messaging";
 import { getBackendClient } from "./backend";
 import { FactCheckResult } from "../api";
 import { FactCheckState, getFactCheckDbService } from "./factcheck_db";
 import { SocialMediaDetailsRequest } from "@/lib/api/models/SocialMediaDetailsRequest";
 import { MediaDetailsRequest } from "@/lib/api/models/MediaDetailsRequest";
-import { FactCheckDetailsRequest }  from "@/lib/api/models/FactCheckDetailsRequest"
+import { FactCheckDetailsRequest } from "@/lib/api/models/FactCheckDetailsRequest"
 
 function createApiRepo() {
 
     const backendClient = getBackendClient();
     const factcheckDb = getFactCheckDbService();
 
-    
+
 
     return {
         async factcheck_whole_page(tabId: number): Promise<Result<FactCheckResult, Error>> {
             const factCheckDbEntry = await factcheckDb.getUrlFactCheck(tabId.toString());
-            if (factCheckDbEntry instanceof Ok) {
-                if (factCheckDbEntry.value && factCheckDbEntry.value.state === FactCheckState.DONE) {
+            if (factCheckDbEntry instanceof Ok && factCheckDbEntry.value) {
+                if (factCheckDbEntry.value.state === FactCheckState.DONE) {
                     return ok(factCheckDbEntry.value!.result!);
-                } else if (factCheckDbEntry.value && factCheckDbEntry.value.state === FactCheckState.PENDING) {
+                } else if (factCheckDbEntry.value!.state === FactCheckState.PENDING) {
                     return err(new Error("Fact-check is still pending"));
                 }
             }
 
             await factcheckDb.setUrlFactCheck(tabId.toString(), FactCheckState.PENDING, new Date());
-            
+
             const content = await sendMessage("getPageContent", undefined, tabId);
             if (content) {
                 const result = await backendClient.factcheck(content);
@@ -43,24 +43,24 @@ function createApiRepo() {
             await factcheckDb.setUrlFactCheck(tabId.toString(), FactCheckState.FAILED, new Date());
             return err(new Error("Failed to retrieve content"));
         },
-        async factcheck_section(title: string,url: string,text: string,tabId:number) : Promise<Result<FactCheckResult, Error>> {
+        async factcheck_section(title: string, url: string, text: string, tabId: number): Promise<Result<FactCheckResult, Error>> {
             const content: FactCheckDetailsRequest = {
-                  title: title,
-                    url: url,
-                  content: text,
-                  html:""
-                }
+                title: title,
+                url: url,
+                content: text,
+                html: ""
+            }
             const factCheckDbEntry = await factcheckDb.getUrlFactCheck(tabId.toString());
-            if (factCheckDbEntry instanceof Ok) {
-                if (factCheckDbEntry.value && factCheckDbEntry.value.state === FactCheckState.DONE) {
+            if (factCheckDbEntry instanceof Ok && factCheckDbEntry.value) {
+                if (factCheckDbEntry.value.state === FactCheckState.DONE) {
                     return ok(factCheckDbEntry.value!.result!);
-                } else if (factCheckDbEntry.value && factCheckDbEntry.value.state === FactCheckState.PENDING) {
+                } else if (factCheckDbEntry.value.state === FactCheckState.PENDING) {
                     return err(new Error("Fact-check is still pending"));
                 }
             }
             if (content) {
                 const result = await backendClient.factcheck(content);
-                
+
                 if (result.isOk()) {
                     await factcheckDb.setUrlFactCheck(tabId.toString(), FactCheckState.DONE, new Date(), result.value);
                     return ok(result.value);
@@ -86,7 +86,7 @@ function createApiRepo() {
                 throw new Error("Failed to perform fact-check on comment", { cause: error });
             }
         },
-        
+
         async factcheck_video(video_details: MediaDetailsRequest): Promise<FactCheckResult> {
             try {
                 const result = await backendClient.factcheckVideo(video_details)

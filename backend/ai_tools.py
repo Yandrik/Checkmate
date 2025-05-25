@@ -8,7 +8,8 @@ from prompts import FACT_CHECK_AGENT_SYSTEM_PROMPT
 from search import fetch_webpage, search, serper_search
 
 
-from models import AiSettings  
+from models import AiSettings
+from trusted_sources import TrustedSourceType, build_url  
 settings = AiSettings()  # type: ignore
 
 @register_tool("fetch_webpage")
@@ -40,6 +41,8 @@ class FetchWebpage(BaseTool):
             raise ValueError("Invalid params: expected a dict with a 'url' key")
         
         url = data["url"]
+
+        print(f"[> fetch_webpage tool >]: {url}")
         
         result = fetch_webpage(url=url)
 
@@ -111,6 +114,12 @@ class TrustedWebSearch(BaseTool):
             "required": True,
         },
         {
+            "name": "category",
+            "type": "enum: GENERAL | POLITICS | SCIENCE | WORDS | GENERIC_UNTRUSTED",
+            "description": "The category of trusted sources to search in. Choose from GENERAL, POLITICS, SCIENCE, WORDS, or GENERIC_UNTRUSTED.",
+            "required": True,
+        },
+        {
             "name": "num_results",
             "type": "integer",
             "description": "Number of search results to return",
@@ -125,13 +134,24 @@ class TrustedWebSearch(BaseTool):
         :return: JSON string with the search results.
         """
         data = json5.loads(params)
-        if not isinstance(data, dict) or "query" not in data:
+        if not isinstance(data, dict) or "query" not in data or "category" not in data:
             raise ValueError("Invalid params: expected a dict with a 'query' key")
         
-        query = urllib.parse.quote(data["query"])
-        num_results = data.get("num_results", 5)
+        trusted_source_type: TrustedSourceType
+        try:
+            trusted_source_type = TrustedSourceType(data["category"].strip().lower().replace(' ', '_'))
+        except ValueError as e:
+            return f'Error: Invalid category. Choose from GENERAL, POLITICS, SCIENCE, WORDS, or GENERIC_UNTRUSTED. {str(e)}'
         
-        search_result = search(query=query, num_results=num_results)  # type: ignore
+        
+        query_params = build_url(trusted_source_type)  # type: ignore
+        
+        query = urllib.parse.quote(data["query"] + " " + query_params)
+        num_results = data.get("num_results", 10)
+
+        
+        print(f"[> trusted_web_search tool >]: {trusted_source_type} | {query}")
+        search_result = serper_search(query=query, num_results=num_results) # search(query=query, num_results=num_results)  # type: ignore
         
         # make search to string
         
