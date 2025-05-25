@@ -54,7 +54,6 @@ class WebSearch(BaseTool):
         else:
             return 'Error: Web Search failed! Please do not try to use this tool at the moment. It is not available.'
 
-<<<<<<< HEAD
 
 @register_tool("trusted_web_search")
 class TrustedWebSearch(BaseTool):
@@ -103,8 +102,6 @@ class TrustedWebSearch(BaseTool):
             return 'Error: Web Search failed! Please do not try to use this tool at the moment. It is not available.'
             
 
-=======
->>>>>>> refs/remotes/origin/main
 @register_tool("fact_check")
 class FactChecker(BaseTool):
     """

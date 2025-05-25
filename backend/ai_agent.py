@@ -7,6 +7,7 @@ from qwen_agent.agents import Assistant #type: ignore
 from qwen_agent.utils.output_beautify import typewriter_print #type: ignore
 import ai_tools
 
+from json_stuff import extract_json_from_end, get_json_from_document
 from models import (
     AiSettings,
     Factoid,
@@ -28,16 +29,13 @@ class Agent:
             'model_server': str(settings.model_server),
             'model_type': settings.model_type,
         }
-        cwd = os.getcwd()
-        with open(f"{cwd}/instructions.txt", "r") as f:
-            instructions_txt = f.read()
-        with open(f"{cwd}/example.txt", "r") as f:
-            example_txt = f.read()
-        with open(f"{cwd}/sources.txt", "r") as f:
-            sources_txt = f.read()
         # system_instruction = DISPATCHER_SYSTEM_PROMPT
         system_instruction = SIMPLE_FACTCHECKER_SYSTEM_PROMPT
         tools = ['web_search']
+
+        dispatcher_system_instruction = DISPATCHER_SYSTEM_PROMPT
+        dispatcher_tools = ['fact_check']
+        
 
         # tools = ['fact_check']
         # tools: list[str | dict | BaseTool] = [{
@@ -55,12 +53,18 @@ class Agent:
                         system_message=system_instruction,
                         function_list=tools)  # type: ignore
 
+        self.dispatcher_bot = Assistant(llm=llm_cfg,
+                        system_message=dispatcher_system_instruction,
+                        function_list=dispatcher_tools)  # type: ignore
+
 
     def parse_ai_response(self, ai_response) -> FactCheckResult: #type: ignore
-        ai_response =' '.join(ai_response.replace("\\n","").strip().split())
+        # ai_response =' '.join(ai_response.replace("\\n","").strip().split())
         # Truncate everything before the first occurrence of '\n{\n'
-        ai_response_json = json5.loads(ai_response)
+        # ai_response_json = json5.loads(ai_response)
         # If the response is a list, take the first element (as in the provided example)
+        ai_response_json, method= extract_json_from_end(ai_response)
+        print(f'read json with method {method}')
         if isinstance(ai_response_json, list):
             ai_response_json = ai_response_json[0]
         return FactCheckResult(**ai_response_json) #type: ignore
@@ -154,21 +158,20 @@ class Agent:
         # for comment in :
         messages.append({
             'role': 'user',
-            'content': f'Fact-check this comment from author: {media_comments.author} with content: {media_comments.content}. Also check the credibility of the author. /no_think'
+            'content': f'Fact-check this social media comment: \n"{media_comments.author}" said:\n{media_comments.content}\n/no_think'
         })
         
         response = self.ai_run(messages)
         return response
     
-    def ai_run(self, messages: List[Dict]) -> FactCheckResult:
+    def ai_run(self, messages: List[Dict], thorough: bool = False) -> FactCheckResult:
         """
         Run the agent with the given messages.
         :param messages: List of messages to process.
         :return: Generator yielding responses from the agent.
         """
         response_json: Any | None = None
-        response_plain_text = ''
-        *_, response_list = self.bot.run(messages=messages)
+        *_, response_list = self.bot.run(messages=messages)  if not thorough else  self.dispatcher_bot.run(messages=messages)  # type:ignore
         response_json = response_list[-1].get('content')
         if response_json is None:
             self.logger.error("No valid response from the AI agent.")
