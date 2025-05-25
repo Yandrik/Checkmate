@@ -16,6 +16,7 @@ from models import (
     MediaDetailsRequest,
     MediaCommentDetailsRequest,
     FactCheckDetailsRequest)
+from prompts import DISPATCHER_SYSTEM_PROMPT
 
 class Agent:
     def __init__(self) -> None:
@@ -34,28 +35,22 @@ class Agent:
             example_txt = f.read()
         with open(f"{cwd}/sources.txt", "r") as f:
             sources_txt = f.read()
-        system_instruction = f'''
-        Instructions:
-        {instructions_txt}
-        Examples:
-        {example_txt}
-        Sources:
-        {sources_txt}
-        '''
-        tools: list[str | dict | BaseTool] = [{
-        "mcpServers": {
-            "websearch" : {
-                "command": "uvx",
-                "args": [
-                    "duckduckgo-mcp-server",
-                    ]
-                }
-            }
-        }]
+        system_instruction = DISPATCHER_SYSTEM_PROMPT
+        tools = ['fact_check']
+        # tools: list[str | dict | BaseTool] = [{
+        # "mcpServers": {
+        #     "websearch" : {
+        #         "command": "uvx",
+        #         "args": [
+        #             "duckduckgo-mcp-server",
+        #             ]
+        #         }
+        #     }
+        # }]
         # ['fact_checker']  # `code_interpreter` is a built-in tool for executing code.
         self.bot = Assistant(llm=llm_cfg,
                         system_message=system_instruction,
-                        function_list=tools)
+                        function_list=tools)  # type: ignore
 
 
     def parse_ai_response(self, ai_response) -> FactCheckResult: #type: ignore
@@ -91,14 +86,14 @@ class Agent:
         :return: FactCheckResult containing the verdict and sources.
         """
         messages = [
-            {'role': 'user', 'content': f'Fact-check this website: {search_req.url} with content: {search_req.content}'}
+            {'role': 'user', 'content': f'Fact-check this website: {search_req.url} with content: {search_req.content} \no_think'}
         ]
         response = self.ai_run(messages)
         return response
     
     def factcheck_social_media(self, social_med: SocialMediaDetailsRequest) -> FactCheckResult:
         messages = [
-            {'role': 'user', 'content': f'Fact-check this comment on a social media platform from user: {social_med.username} with content: {social_med.content}. Also check the credibility of the user'}
+            {'role': 'user', 'content': f'Fact-check this comment on a social media platform from user: {social_med.username} with content: {social_med.content}. Also check the credibility of the user. /no_think'}
         ]
         response = self.ai_run(messages)
         return response
@@ -117,7 +112,7 @@ class Agent:
 
     def factcheck_media_details(self, media_details: MediaDetailsRequest) -> FactCheckResult:
         messages = [
-            {'role': 'user', 'content': f'Fact-check this youtube video from this channel: {media_details.channel}. The relevant information you should research to is here: {media_details.transcription_close_to_timestamp}, but also put it into the broad context: {media_details.transcription_with_more_context}. The video ID is {media_details.videoId} and the URL is {media_details.url}. Also check the credibility of the channel.'}
+            {'role': 'user', 'content': f'Fact-check this youtube video from this channel: {media_details.channel}. The relevant information you should research to is here: {media_details.transcription_close_to_timestamp}, but also put it into the broad context: {media_details.transcription_with_more_context}. The video ID is {media_details.videoId} and the URL is {media_details.url}. Also check the credibility of the channel. /no_think'}
         ]
         response = self.ai_run(messages)
         return response
@@ -159,7 +154,7 @@ class Agent:
         # for comment in :
         messages.append({
             'role': 'user',
-            'content': f'Fact-check this comment from author: {media_comments.author} with content: {comment.content}. Also check the credibility of the author.'
+            'content': f'Fact-check this comment from author: {media_comments.author} with content: {media_comments.content}. Also check the credibility of the author. /no_think'
         })
         
         response = self.ai_run(messages)
